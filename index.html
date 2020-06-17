@@ -122,7 +122,62 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/06/17/Go%E4%B8%89%E5%A4%A7%E4%B8%BB%E6%B5%81%E6%A1%86%E6%9E%B6/" data-id="ckbiys4ri0000dh01gtez95ee" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2020/06/17/Go%E4%B8%89%E5%A4%A7%E4%B8%BB%E6%B5%81%E6%A1%86%E6%9E%B6/" data-id="ckbj46zjo0000ru01ff5a9ubl" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-postgres安装教程" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/06/17/postgres%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/" class="article-date">
+  <time datetime="2020-06-16T16:00:00.000Z" itemprop="datePublished">2020-06-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/06/17/postgres%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/">postgresql数据库安装</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="postgres安装教程"><a href="#postgres安装教程" class="headerlink" title="postgres安装教程"></a>postgres安装教程</h2><h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><pre><code>目前网上有很多mac安装postgres的教程，完全按照那些教程安装，有的可能会出现各种问题，使得安装失败。
+经过自己的多次失败安装后，将在安装过程中的细节整理一二，希望有像我一样困扰的朋友得以解决问题；
+本文档解决了mac上安装报错等问题，顺便提供了docker安装过程中的一 些需要注意的细节以及提供了Centos上使用源码安装postgres的步骤；
+本人亲测可行，希望可以帮助需要的人。</code></pre><h1 id="1-mac安装PostgreSQL"><a href="#1-mac安装PostgreSQL" class="headerlink" title="1. mac安装PostgreSQL"></a>1. mac安装PostgreSQL</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. 在mac的 系统偏好设置--&gt;用户与群组--&gt;解锁--&gt;点+--&gt;新建用户</span><br><span class="line">（注意：此处将用户选为管理员用户，可以不用重启电脑，选普通成员后续操作略有不同）</span><br><span class="line"></span><br><span class="line">建议新建用户为：postgres   密码自定</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20200606212418707.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="截图如上"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2. 下载安装包</span><br><span class="line">下载地址：https:&#x2F;&#x2F;www.enterprisedb.com&#x2F;downloads&#x2F;postgres-postgresql-downloads</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20200606212816181.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="版本自选"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">3. 打开下载的安装包，在安选择安装位置时，选择刚才新建的用户下的一个文件夹内（即 postgres用户下自拟一个文件夹）</span><br></pre></td></tr></table></figure>
+<p>如图 ，将默认的这个文件位置：<br><img src="https://img-blog.csdnimg.cn/20200606213640158.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>替换为自建的postgres用户下:<br><img src="https://img-blog.csdnimg.cn/20200606213821449.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>然后一直next，其中包括密码要记住，后面登陆要用，注意在选择<img src="https://img-blog.csdnimg.cn/20200606214003250.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>选择为: zh_CN.UTF8<br>然后继续next 即安装成功;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">4. 在当前用户下，启动数据库</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20200606214336372.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>打开后输入数据库相关信息，其他信息可以默认，但是密码是当时安装时的密码:<br><img src="https://img-blog.csdnimg.cn/20200606220605119.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">5. 终端使用</span><br><span class="line">\l 查看database</span><br><span class="line">create database hh；</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20200606221130502.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">6. 使用pgAdmin4链接数据库</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20200606221555914.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20200606221650288.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>连接成功<br><img src="https://img-blog.csdnimg.cn/20200606221732880.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>走到这里，基本上可以在代码里疯狂玩耍了</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/06/17/postgres%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/" data-id="ckbj46zjt0001ru01brbqelfe" class="article-share-link">Share</a>
       
       
     </footer>
@@ -142,7 +197,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/GO%E8%AF%AD%E8%A8%80/">GO语言</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/GO%E8%AF%AD%E8%A8%80/">GO语言</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
     </div>
   </div>
 
@@ -171,6 +226,10 @@
         
           <li>
             <a href="/2020/06/17/Go%E4%B8%89%E5%A4%A7%E4%B8%BB%E6%B5%81%E6%A1%86%E6%9E%B6/">GO框架</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/17/postgres%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/">postgresql数据库安装</a>
           </li>
         
       </ul>
