@@ -18,7 +18,7 @@
     <link rel="alternate" href="/atom.xml" title="宋晓奎的学习生涯" type="application/atom+xml">
   
   
-    <link rel="icon" href="/favicon.png">
+    <link rel="icon" href="/img/favicon.ico">
   
   
     <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
@@ -68,70 +68,6 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-Go三大主流框架" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/06/17/Go%E4%B8%89%E5%A4%A7%E4%B8%BB%E6%B5%81%E6%A1%86%E6%9E%B6/" class="article-date">
-  <time datetime="2020-06-16T16:00:00.000Z" itemprop="datePublished">2020-06-17</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/GO%E8%AF%AD%E8%A8%80/">GO语言</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/06/17/Go%E4%B8%89%E5%A4%A7%E4%B8%BB%E6%B5%81%E6%A1%86%E6%9E%B6/">GO框架</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="Go三大主流框架"><a href="#Go三大主流框架" class="headerlink" title="Go三大主流框架"></a>Go三大主流框架</h1><p>一  <strong>Beego</strong> <em>开源的高性能 Go 语言 Web 框架。</em></p>
-<ul>
-<li><a href="https://github.com/astaxie/beego" target="_blank" rel="noopener">https://github.com/astaxie/beego</a></li>
-<li><a href="https://beego.me/" target="_blank" rel="noopener">https://beego.me</a></li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br></pre></td><td class="code"><pre><span class="line">一 模版语法的使用</span><br><span class="line">1. 修改模版的符号</span><br><span class="line">		方式一： 在配置文件中修改</span><br><span class="line">		TemplateLeft&#x3D;&quot;符号&quot;</span><br><span class="line">		TemplateRight&#x3D;&quot;符号&quot;</span><br><span class="line">		方式二： 在main启动入口文件中修改</span><br><span class="line">		beego.BConfig.WebConfig.TemplateLeft&#x3D;&quot;符号&quot;</span><br><span class="line">		beego.BConfig.WebConfig.TemplateRight&#x3D;&quot;符号&quot;</span><br><span class="line">2. 模版绑定基本数据（字符串 浮点型 bool）</span><br><span class="line">		c.Data[key] &#x3D; value</span><br><span class="line">		模版中使用</span><br><span class="line">		&#123;&#123;.变量&#125;&#125;</span><br><span class="line">3. 模板绑定结构体数据</span><br><span class="line">		c.Data[key] &#x3D; 结构体</span><br><span class="line">		使用方法:</span><br><span class="line">		点表示法</span><br><span class="line">		&#123;&#123;.key.属性&#125;&#125;</span><br><span class="line">4. 模板中的自定义变量</span><br><span class="line">		&#123;&#123;$变量名 :&#x3D; .传入的变量&#125;&#125;</span><br><span class="line">		使用：</span><br><span class="line">		&#123;&#123;$变量名&#125;&#125;</span><br><span class="line">5. 模板中的循环遍历</span><br><span class="line">		c.Data[变量] &#x3D; []string&#123;v1, v2, v3&#125;</span><br><span class="line">		模板使用:</span><br><span class="line">		&#123;&#123;range $key，$value :&#x3D; .变量&#125;&#125;</span><br><span class="line">		&#123;&#123;end&#125;&#125;</span><br><span class="line">6. 循环遍历结构体切片</span><br><span class="line">		c.Data[key] &#x3D; []结构体名称&#123;</span><br><span class="line">			&#123;&#125;,</span><br><span class="line">			&#123;&#125;,</span><br><span class="line">		&#125;</span><br><span class="line">		使用:</span><br><span class="line">		&#123;&#123;range $key,$v :&#x3D; .key&#125;&#125;</span><br><span class="line">				&#123;&#123;$v.属性&#125;&#125;</span><br><span class="line">		&#123;&#123;end&#125;&#125;</span><br><span class="line">		使用方法2:</span><br><span class="line">		匿名结构体:</span><br><span class="line">		c.Data[key] &#x3D; []struct&#123;</span><br><span class="line">			名称 类型</span><br><span class="line">		&#125;&#123;</span><br><span class="line">			&#123;名称：值&#125;,</span><br><span class="line">			&#123;名称：值&#125;,</span><br><span class="line">			...</span><br><span class="line">		&#125;</span><br><span class="line">8 模板中的判断语句</span><br><span class="line">		&#123;&#123;if .变量&#125;&#125;</span><br><span class="line">		成功执行</span><br><span class="line">		&#123;&#123;else&#125;&#125;</span><br><span class="line">		失败执行</span><br><span class="line">		&#123;&#123;end&#125;&#125;</span><br><span class="line">9 if 条件判断语句</span><br><span class="line">		eq 等于</span><br><span class="line">		ne 不等于</span><br><span class="line">		lt 小于</span><br><span class="line">		gt 大于</span><br><span class="line">		&#123;&#123;if ne .变量1 .变量2&#125;&#125;</span><br><span class="line">		成功执行</span><br><span class="line">		&#123;&#123;end&#125;&#125;</span><br><span class="line">10 自定义代码块  </span><br><span class="line">		&#123;&#123;define &quot;模板名称&quot;&#125;&#125;</span><br><span class="line">		内容</span><br><span class="line">		&#123;&#123;end&#125;&#125;</span><br><span class="line">		使用：</span><br><span class="line">		&#123;&#123;template 模板名称 .&#125;&#125;</span><br><span class="line">11 外部自定义模板</span><br><span class="line">		先建立一个模板</span><br><span class="line">		在别的模板中使用</span><br><span class="line">		&#123;&#123;template &quot;模板路径&quot;&#125;&#125;</span><br><span class="line">		问题是: 导入模板无法使用数据</span><br><span class="line">		解决:</span><br><span class="line">		&#123;&#123;template &quot;模板路径&quot; .&#125;&#125;</span><br><span class="line">		</span><br><span class="line">二 beego内置模板函数</span><br><span class="line">1. 格式化输出data</span><br><span class="line">    处理器中:</span><br><span class="line">    c.Data[&quot;now&quot;] &#x3D; time.Now()</span><br><span class="line">    模板使用:</span><br><span class="line">    &#123;&#123;data .now &quot;Y-m-d H:i:s&quot;&#125;&#125;</span><br><span class="line"></span><br><span class="line">2. 子字符串截取substr</span><br><span class="line">		&#123;&#123;substr .变量 其实位置 终止位置&#125;&#125;</span><br><span class="line"></span><br><span class="line">3. 去掉html的标签 html2str</span><br><span class="line">    处理器：</span><br><span class="line">    c.Data[&quot;html&quot;]&#x3D;&quot;&lt;h1&gt;hahah&lt;&#x2F;h1&gt;&quot;</span><br><span class="line">    模板:</span><br><span class="line">    &#123;&#123;.html | html2str&#125;&#125;</span><br><span class="line">    或</span><br><span class="line">    &#123;&#123;html2str .html&#125;&#125;</span><br><span class="line"></span><br><span class="line">4. html字符串解析 str2html</span><br><span class="line">    c.Data[&quot;html&quot;]&#x3D;&quot;&lt;h1&gt;hahah&lt;&#x2F;h1&gt;&quot;</span><br><span class="line">    模板使用:</span><br><span class="line">    &#123;&#123;.html | str2html&#125;&#125;</span><br><span class="line">    或</span><br><span class="line">    &#123;&#123;str2html .html&#125;&#125;</span><br><span class="line">5. 转义和反转义</span><br><span class="line">6. 模板引入css文件和js文件 assets_css assets_js</span><br><span class="line">    使用</span><br><span class="line">    &#123;&#123;assets_css &quot;css文件路径&quot;&#125;&#125;</span><br><span class="line">    &#123;&#123;assets_js &quot;js文件路径&quot;&#125;&#125;</span><br><span class="line">7. 模板中使用配置文件 config</span><br><span class="line">    使用:</span><br><span class="line">    &#123;&#123;config &quot;类型&quot; &quot;变量名&quot; 默认值&#125;&#125;</span><br><span class="line">    &#123;&#123;config &quot;String&quot; &quot;runmode&quot; &quot;&quot;&#125;&#125;</span><br><span class="line">    注意一定要加引号</span><br><span class="line">8. 使用map_get 获取map值</span><br><span class="line">    处理器中:</span><br><span class="line">    c.Data[&quot;m&quot;] &#x3D; map</span><br><span class="line">    使用:</span><br><span class="line">    &#123;&#123;map_get .m &quot;字段名&quot;&#125;&#125;</span><br><span class="line">9. 自定义模版函数</span><br><span class="line">    必须要在run之前进行初始化</span><br><span class="line">    在代码中定义函数:</span><br><span class="line">    func 函数名(形参 类型)(返回值 类型) &#123;</span><br><span class="line">        ...</span><br><span class="line">        return </span><br><span class="line">    &#125;</span><br><span class="line">    注册:</span><br><span class="line">    beego.AddFuncMap(&quot;函数名&quot;, 自定义函数名)</span><br><span class="line">    在模板中使用:</span><br><span class="line">    &#123;&#123;.变量 | 自定义函数名&#125;&#125;</span><br><span class="line">10. 配置静态目录（下载）</span><br><span class="line">    在入口文件前注册:</span><br><span class="line">    beego.SetStaticPath(&quot;&#x2F;path&quot;, &quot;地址&quot;)</span><br><span class="line">    访问:</span><br><span class="line">    &#x2F;path 路由就可以下载静态文件</span><br><span class="line">    默认的static还是正常访问</span><br><span class="line"></span><br><span class="line">三 go中的Model和Md5加密</span><br><span class="line">四 config</span><br><span class="line">    设置配置信息，可以设置数据库等信息</span><br><span class="line">    使用:</span><br><span class="line">    &#x2F;&#x2F; 获取一个值</span><br><span class="line">    value &#x3D; beego.AppConfig.String(key)</span><br><span class="line">    &#x2F;&#x2F; 获取切片</span><br><span class="line">    []type &#x3D; beego.App.Config.Strings(key)</span><br><span class="line">    设置全局配置，在入口之前，Set</span><br><span class="line">    配置不同模式:</span><br><span class="line">    不同端口:</span><br><span class="line">    [dev]</span><br><span class="line">    httpport &#x3D; 8888</span><br><span class="line">    [test]</span><br><span class="line">    httpport &#x3D; 8887</span><br><span class="line">    使用:</span><br><span class="line">    不同模式下设置参数方法:</span><br><span class="line">    beego.App.Config.Set(&quot;模式::配置参数名&quot;, &quot;值&quot;)</span><br><span class="line"></span><br><span class="line">五 cookie和session的配置</span><br><span class="line">	1. sessoon的设置:</span><br><span class="line">	项目开启session:</span><br><span class="line">	在配置参数中开启: sessionon &#x3D; True</span><br></pre></td></tr></table></figure>
-
-
-
-<p>二  <strong>gin</strong> <em>Go 语言编写的 Web 框架，以更好的性能实现类似 Martini 框架的 API</em></p>
-<ul>
-<li><a href="https://github.com/gin-gonic/gin" target="_blank" rel="noopener">https://github.com/gin-gonic/gin</a></li>
-<li><a href="https://gin-gonic.github.io/gin" target="_blank" rel="noopener">https://gin-gonic.github.io/gin</a></li>
-</ul>
-<p>三  <strong>Iris</strong> <em>全宇宙最快的 Go 语言 Web 框架。完备 MVC 支持，未来尽在掌握</em></p>
-<ul>
-<li><a href="https://github.com/kataras/iris" target="_blank" rel="noopener">https://github.com/kataras/iris</a></li>
-<li><a href="https://iris-go.com/" target="_blank" rel="noopener">https://iris-go.com</a></li>
-</ul>
-<p>四   <strong>Revel</strong> <em>Go 语言的高效、全栈 Web 框架</em></p>
-<ul>
-<li><a href="https://github.com/revel/revel" target="_blank" rel="noopener">https://github.com/revel/revel</a></li>
-<li><a href="https://revel.github.io/" target="_blank" rel="noopener">https://revel.github.io</a></li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/06/17/Go%E4%B8%89%E5%A4%A7%E4%B8%BB%E6%B5%81%E6%A1%86%E6%9E%B6/" data-id="ckbj46zjo0000ru01ff5a9ubl" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
     <article id="post-postgres安装教程" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2020/06/17/postgres%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/" class="article-date">
@@ -166,13 +102,13 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2. 下载安装包</span><br><span class="line">下载地址：https:&#x2F;&#x2F;www.enterprisedb.com&#x2F;downloads&#x2F;postgres-postgresql-downloads</span><br></pre></td></tr></table></figure>
 <p><img src="https://img-blog.csdnimg.cn/20200606212816181.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="版本自选"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">3. 打开下载的安装包，在安选择安装位置时，选择刚才新建的用户下的一个文件夹内（即 postgres用户下自拟一个文件夹）</span><br></pre></td></tr></table></figure>
-<p>如图 ，将默认的这个文件位置：<br><img src="https://img-blog.csdnimg.cn/20200606213640158.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>替换为自建的postgres用户下:<br><img src="https://img-blog.csdnimg.cn/20200606213821449.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>然后一直next，其中包括密码要记住，后面登陆要用，注意在选择<img src="https://img-blog.csdnimg.cn/20200606214003250.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>选择为: zh_CN.UTF8<br>然后继续next 即安装成功;</p>
+<p>如图 ，将默认的这个文件位置：<br><img src="https://img-blog.csdnimg.cn/20200606213640158.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="文件目录选择"><br>替换为自建的postgres用户下:<br><img src="https://img-blog.csdnimg.cn/20200606213821449.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt=""><br>然后一直next，其中包括密码要记住，后面登陆要用，注意在选择<img src="https://img-blog.csdnimg.cn/20200606214003250.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="字符集选择"><br>选择为: zh_CN.UTF8<br>然后继续next 即安装成功;</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">4. 在当前用户下，启动数据库</span><br></pre></td></tr></table></figure>
-<p><img src="https://img-blog.csdnimg.cn/20200606214336372.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>打开后输入数据库相关信息，其他信息可以默认，但是密码是当时安装时的密码:<br><img src="https://img-blog.csdnimg.cn/20200606220605119.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p><img src="https://img-blog.csdnimg.cn/20200606214336372.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt=""><br>打开后输入数据库相关信息，其他信息可以默认，但是密码是当时安装时的密码:<br><img src="https://img-blog.csdnimg.cn/20200606220605119.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="数据库登陆shell页面"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">5. 终端使用</span><br><span class="line">\l 查看database</span><br><span class="line">create database hh；</span><br></pre></td></tr></table></figure>
-<p><img src="https://img-blog.csdnimg.cn/20200606221130502.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p><img src="https://img-blog.csdnimg.cn/20200606221130502.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt=""></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">6. 使用pgAdmin4链接数据库</span><br></pre></td></tr></table></figure>
-<p><img src="https://img-blog.csdnimg.cn/20200606221555914.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20200606221650288.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>连接成功<br><img src="https://img-blog.csdnimg.cn/20200606221732880.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>走到这里，基本上可以在代码里疯狂玩耍了</p>
+<p><img src="https://img-blog.csdnimg.cn/20200606221555914.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt=""><br><img src="https://img-blog.csdnimg.cn/20200606221650288.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt=""><br>连接成功<br><img src="https://img-blog.csdnimg.cn/20200606221732880.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NjkyNjUx,size_16,color_FFFFFF,t_70" alt=""><br>走到这里，基本上可以在代码里疯狂玩耍了</p>
 
       
     </div>
@@ -197,7 +133,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/GO%E8%AF%AD%E8%A8%80/">GO语言</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
     </div>
   </div>
 
@@ -225,10 +161,6 @@
       <ul>
         
           <li>
-            <a href="/2020/06/17/Go%E4%B8%89%E5%A4%A7%E4%B8%BB%E6%B5%81%E6%A1%86%E6%9E%B6/">GO框架</a>
-          </li>
-        
-          <li>
             <a href="/2020/06/17/postgres%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/">postgresql数据库安装</a>
           </li>
         
@@ -246,9 +178,72 @@
     <div id="footer-info" class="inner">
       &copy; 2020 宋晓奎<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	<br>
+	 <div style="width:200px; margin:0 auto; padding:2px 0;">
+	 <a href="http://www.beian.miit.gov.cn/"  style="color:#f72b07" target="_blank">浙ICP备20022863号</a>
+
+	</div>
+	<div style="width:300px;margin:0 auto; padding:2px 0;">
+	<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33010402004239" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;text-align: center">
+          <img src="/img/back.png" style="float:left;"/>
+          	<p style="float:left;height:20px;line-height:20px;margin: 0px 0px 0px 5px; color:#939393;">浙公网安备 33010402004239号
+            </p>
+					</a>
+</div>	 
     </div>
+	 <div style="width:400px;margin:0 auto; padding:2px 0;">	
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div calss="count-span">
+	<span id="busuanzi_container_site_pv">
+		本站总访问量<span id="busuanzi_value_site_pv"></span>次
+	</span>
+	<span id="busuanzi_container_site_uv">
+		本站总访客数<span id="busuanzi_value_site_uv"></span>人
+	</span>
+	<span id="busuanzi_container_page_pv">
+		本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+	</div>
+	
+	
+<!--《添加网站运行时间 -->
+<!--<br/>-->
+<div style="width:350px;margin:0 auto; padding:2px 0;">
+<span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+</div>
+<script>
+    var now = new Date();
+
+    function createtime() {
+        var grt = new Date("06/29/2020 12:00:00"); //此处修改你的建站时间或者网站上线时间 
+        now.setTime(now.getTime() + 250);
+        days = (now - grt) / 1000 / 60 / 60 / 24;
+        dnum = Math.floor(days);
+        hours = (now - grt) / 1000 / 60 / 60 - (24 * dnum);
+        hnum = Math.floor(hours);
+        if (String(hnum).length == 1) {
+            hnum = "0" + hnum;
+        }
+        minutes = (now - grt) / 1000 / 60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes);
+        if (String(mnum).length == 1) {
+            mnum = "0" + mnum;
+        }
+        seconds = (now - grt) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds);
+        if (String(snum).length == 1) {
+            snum = "0" + snum;
+        }
+        document.getElementById("timeDate").innerHTML = "   " +  " 本站已安全运行 " + dnum + " 天 ";
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+    }
+    setInterval("createtime()", 300);
+</script>
+<!-- 添加网站运行时间》 -->	
+
   </div>
 </footer>
+
     </div>
     <nav id="mobile-nav">
   
