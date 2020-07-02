@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>栈与队列-3-递归实现栈的逆序 | 宋晓奎的学习生涯</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="递归实现栈的逆序 题目 ​        将栈只用递归方式实现栈的逆序。  实现思路: ​        1.先获取到栈底元素，保持原栈的数据信息。 ​        2.将每一步获取到的栈底元素最后押入到栈顶。  图示说明 ​        1. 返回栈底元素，并将其移出掉 ​                 ​        2. 递归获取栈底元素，直到栈为空，在将获取到的元素押入到栈中。 ​">
+<meta property="og:type" content="article">
+<meta property="og:title" content="栈与队列-3-递归实现栈的逆序">
+<meta property="og:url" content="http://yoursite.com/2020/07/01/%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0%E6%A0%88%E9%80%86%E5%BA%8F/index.html">
+<meta property="og:site_name" content="宋晓奎的学习生涯">
+<meta property="og:description" content="递归实现栈的逆序 题目 ​        将栈只用递归方式实现栈的逆序。  实现思路: ​        1.先获取到栈底元素，保持原栈的数据信息。 ​        2.将每一步获取到的栈底元素最后押入到栈顶。  图示说明 ​        1. 返回栈底元素，并将其移出掉 ​                 ​        2. 递归获取栈底元素，直到栈为空，在将获取到的元素押入到栈中。 ​">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="http://yoursite.com/2020/07/post_img/image-20200701211709576.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/post_img/image-20200701212925719.png">
+<meta property="article:published_time" content="2020-06-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-07-01T13:41:02.483Z">
+<meta property="article:author" content="宋晓奎">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/07/post_img/image-20200701211709576.png">
+  
+    <link rel="alternate" href="/atom.xml" title="宋晓奎的学习生涯" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/img/favicon.ico">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">宋晓奎的学习生涯</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">优秀的积累，造就优秀的复制</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-递归实现栈逆序" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/07/01/%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0%E6%A0%88%E9%80%86%E5%BA%8F/" class="article-date">
+  <time datetime="2020-06-30T16:00:00.000Z" itemprop="datePublished">2020-07-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      栈与队列-3-递归实现栈的逆序
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="递归实现栈的逆序"><a href="#递归实现栈的逆序" class="headerlink" title="递归实现栈的逆序"></a>递归实现栈的逆序</h2><ul>
+<li><p>题目</p>
+<p>​        将栈只用递归方式实现栈的逆序。</p>
+</li>
+<li><p>实现思路:</p>
+<p>​        1.先获取到栈底元素，保持原栈的数据信息。</p>
+<p>​        2.将每一步获取到的栈底元素最后押入到栈顶。</p>
+</li>
+<li><p>图示说明</p>
+<p>​        1. 返回栈底元素，并将其移出掉</p>
+<p>​        <img src="../../post_img/image-20200701211709576.png" alt="返回栈底元素并移除">        </p>
+<p>​        2. 递归获取栈底元素，直到栈为空，在将获取到的元素押入到栈中。</p>
+<p>​        <img src="../../post_img/image-20200701212925719.png" alt="栈元素逆序"></p>
+</li>
+<li><p>实现代码    </p>
+<p>注意：本代码中的栈结构及其方法，引用上篇定义的栈结构及其方法</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"><span class="comment">// 每次弹出栈底元素</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetAadRemoveLastElement</span><span class="params">(m *StackData)</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">	data, _ := m.Poll()</span><br><span class="line">	<span class="keyword">if</span> m.IsEmpty() &#123;</span><br><span class="line">		<span class="keyword">return</span> data</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		last := GetAadRemoveLastElement(m)</span><br><span class="line">		m.Add(data)</span><br><span class="line">		<span class="keyword">return</span> last</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归实现元素的翻转</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Reverse</span><span class="params">(d *StackData)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> d.IsEmpty() &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		result := GetAadRemoveLastElement(d)</span><br><span class="line">		<span class="comment">// 获取 1--2--3</span></span><br><span class="line">		Reverse(d)</span><br><span class="line">		<span class="comment">// 压入 3--2--1</span></span><br><span class="line">		d.Add(result)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	d := InitStack()</span><br><span class="line">	d.Data = []<span class="keyword">interface</span>&#123;&#125;&#123;<span class="string">"1"</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br><span class="line">	d.Length = <span class="number">3</span></span><br><span class="line">	fmt.Printf(<span class="string">"%#v\n"</span>, d.String())</span><br><span class="line">	Reverse(d)</span><br><span class="line">	fmt.Printf(<span class="string">"%#v\n"</span>, d.String())</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 输出结果</span></span><br><span class="line"><span class="string">"[1 2 3]"</span></span><br><span class="line"><span class="string">"[3 2 1]"</span></span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/07/01/%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0%E6%A0%88%E9%80%86%E5%BA%8F/" data-id="ckc4dmu5a0003uu019li1d3z3" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/06/30/%E5%8F%8C%E6%A0%88%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E9%98%9F%E5%88%97/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">栈与队列-2-由两个栈组成的队列</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/01/%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0%E6%A0%88%E9%80%86%E5%BA%8F/">栈与队列-3-递归实现栈的逆序</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/30/%E5%8F%8C%E6%A0%88%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E9%98%9F%E5%88%97/">栈与队列-2-由两个栈组成的队列</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/29/%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E6%9C%89getMin%E5%8A%9F%E8%83%BD%E7%9A%84%E6%A0%88/">栈与队列-1-设计一个有getMin功能的栈</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/17/postgres%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/">postgresql数据库安装</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 宋晓奎<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	<br>
+	 <div style="width:200px; margin:0 auto; padding:2px 0;">
+	 <a href="http://www.beian.miit.gov.cn/"  style="color:#f72b07" target="_blank">浙ICP备20022863号</a>
+
+	</div>
+	<div style="width:300px;margin:0 auto; padding:2px 0;">
+	<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33010402004239" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;text-align: center">
+          <img src="/img/back.png" style="float:left;"/>
+          	<p style="float:left;height:20px;line-height:20px;margin: 0px 0px 0px 5px; color:#939393;">浙公网安备 33010402004239号
+            </p>
+					</a>
+</div>	 
+    </div>
+	 <div style="width:400px;margin:0 auto; padding:2px 0;">	
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div calss="count-span">
+	<span id="busuanzi_container_site_pv">
+		本站总访问量<span id="busuanzi_value_site_pv"></span>次
+	</span>
+	<span id="busuanzi_container_site_uv">
+		本站总访客数<span id="busuanzi_value_site_uv"></span>人
+	</span>
+	<span id="busuanzi_container_page_pv">
+		本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+	</div>
+	
+	
+<!--《添加网站运行时间 -->
+<!--<br/>-->
+<div style="width:350px;margin:0 auto; padding:2px 0;">
+<span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+</div>
+<script>
+    var now = new Date();
+
+    function createtime() {
+        var grt = new Date("06/29/2020 12:00:00"); //此处修改你的建站时间或者网站上线时间 
+        now.setTime(now.getTime() + 250);
+        days = (now - grt) / 1000 / 60 / 60 / 24;
+        dnum = Math.floor(days);
+        hours = (now - grt) / 1000 / 60 / 60 - (24 * dnum);
+        hnum = Math.floor(hours);
+        if (String(hnum).length == 1) {
+            hnum = "0" + hnum;
+        }
+        minutes = (now - grt) / 1000 / 60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes);
+        if (String(mnum).length == 1) {
+            mnum = "0" + mnum;
+        }
+        seconds = (now - grt) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds);
+        if (String(snum).length == 1) {
+            snum = "0" + snum;
+        }
+        document.getElementById("timeDate").innerHTML = "   " +  " 本站已安全运行 " + dnum + " 天 ";
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+    }
+    setInterval("createtime()", 300);
+</script>
+<!-- 添加网站运行时间》 -->	
+
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

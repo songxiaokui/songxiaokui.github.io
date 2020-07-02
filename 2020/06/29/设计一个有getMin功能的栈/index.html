@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>栈与队列-1-设计一个有getMin功能的栈 | 宋晓奎的学习生涯</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="设计一个有getMin功能的栈 题目 ​    实现一个特殊功能的栈，在满足栈的基本功能的条件下，提供返回栈中最小元素的操作。  要求 ​    pop、push、getMin操作的时间复杂度为O(1)  实现思路: ​    使用两个栈实现需求，一个栈用来保存正常栈的数据信息stackData，一个栈保存每一步的最小值stackMin。由stackData栈实现正常的pop和push，由stac">
+<meta property="og:type" content="article">
+<meta property="og:title" content="栈与队列-1-设计一个有getMin功能的栈">
+<meta property="og:url" content="http://yoursite.com/2020/06/29/%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E6%9C%89getMin%E5%8A%9F%E8%83%BD%E7%9A%84%E6%A0%88/index.html">
+<meta property="og:site_name" content="宋晓奎的学习生涯">
+<meta property="og:description" content="设计一个有getMin功能的栈 题目 ​    实现一个特殊功能的栈，在满足栈的基本功能的条件下，提供返回栈中最小元素的操作。  要求 ​    pop、push、getMin操作的时间复杂度为O(1)  实现思路: ​    使用两个栈实现需求，一个栈用来保存正常栈的数据信息stackData，一个栈保存每一步的最小值stackMin。由stackData栈实现正常的pop和push，由stac">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="http://yoursite.com/2020/06/post_img/image-20200629230716521.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/post_img/image-20200629231009666.png">
+<meta property="article:published_time" content="2020-06-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-06-29T16:35:13.925Z">
+<meta property="article:author" content="宋晓奎">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/06/post_img/image-20200629230716521.png">
+  
+    <link rel="alternate" href="/atom.xml" title="宋晓奎的学习生涯" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/img/favicon.ico">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">宋晓奎的学习生涯</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">优秀的积累，造就优秀的复制</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-设计一个有getMin功能的栈" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/06/29/%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E6%9C%89getMin%E5%8A%9F%E8%83%BD%E7%9A%84%E6%A0%88/" class="article-date">
+  <time datetime="2020-06-28T16:00:00.000Z" itemprop="datePublished">2020-06-29</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      栈与队列-1-设计一个有getMin功能的栈
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="设计一个有getMin功能的栈"><a href="#设计一个有getMin功能的栈" class="headerlink" title="设计一个有getMin功能的栈"></a>设计一个有getMin功能的栈</h2><ul>
+<li><p>题目</p>
+<p>​    实现一个特殊功能的栈，在满足栈的基本功能的条件下，提供返回栈中最小元素的操作。</p>
+</li>
+<li><p>要求</p>
+<p>​    pop、push、getMin操作的时间复杂度为O(1)</p>
+</li>
+<li><p>实现思路:</p>
+<p>​    使用两个栈实现需求，一个栈用来保存正常栈的数据信息stackData，一个栈保存每一步的最小值stackMin。由stackData栈实现正常的pop和push，由stackMin栈实现获取当前栈的最小值。</p>
+</li>
+<li><p>实现方案</p>
+<ul>
+<li><p>方案一</p>
+<p>​    对于stackMin保存每一步最小值，可以使用比较法进行保存，如果当前押入stackData的值小于等于stackMin栈顶的值，则将押入的数据保存stackMin栈中，大于stackMin栈顶的值，只押入stackData中。如果stackMin为空，则双栈都押入。弹出数据时，如果stackData弹出的数据等于当前stackMin栈顶元素，则stackMin栈顶元素也要弹出，即同步弹出。获取当前栈的最小值，直接获取stackMin栈顶元素即可。</p>
+<p><img src="../../post_img/image-20200629230716521.png" alt="方案一比较押入"></p>
+</li>
+<li><p>方案二</p>
+<p>​    stackMin栈数据重复保存法。将数据押入stackData栈中，如果押入栈中的数据小于等于stackMin栈顶元素，则stackData和stackMin都押入当前元素。如果押入栈中的数据大于stackMin栈顶元素，则获取stackMin栈顶元素，重复押入。如果stackMin栈为空，则直接将数据押入stackMin栈和stackData栈中。该方案以空间换取了部分比较的操作，对于弹出操作，双栈弹出即可。获取当前栈最小值方式同上。</p>
+<p><img src="../../post_img/image-20200629231009666.png" alt="重复押入"></p>
+</li>
+</ul>
+</li>
+<li><p>go实现代码</p>
+<ul>
+<li><p>方案一实现</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"errors"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义接口，要求实现push pop getMin三个方法</span></span><br><span class="line"><span class="keyword">type</span> GetMin <span class="keyword">interface</span>&#123;</span><br><span class="line">	push(<span class="keyword">int</span>)</span><br><span class="line">	pop() (<span class="keyword">int</span>, error)</span><br><span class="line">	getMin() (<span class="keyword">int</span>, error)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义结构体，有存储数据的栈 保存最小值的栈</span></span><br><span class="line"><span class="keyword">type</span> GetMinStack <span class="keyword">struct</span> &#123;</span><br><span class="line">	stackDate []<span class="keyword">int</span></span><br><span class="line">	stackMin []<span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使结构体实现所有方法，即GetMinStack结构体实现GetMin全部接口</span></span><br><span class="line"><span class="comment">// 数据押入</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *GetMinStack)</span> <span class="title">push</span><span class="params">(num <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="comment">// 实现押入方法</span></span><br><span class="line">	s.stackDate = <span class="built_in">append</span>(s.stackDate, num)</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(s.stackMin) == <span class="number">0</span> &#123;</span><br><span class="line">		s.stackMin = <span class="built_in">append</span>(s.stackMin, num)</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="comment">// 取出最后一个</span></span><br><span class="line">		<span class="keyword">if</span> last := s.stackMin[<span class="built_in">len</span>(s.stackMin)<span class="number">-1</span>]; num &lt;= last &#123;</span><br><span class="line">			s.stackMin = <span class="built_in">append</span>(s.stackMin, num)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 数据弹出</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *GetMinStack)</span> <span class="title">pop</span><span class="params">()</span><span class="params">(num <span class="keyword">int</span>, err error)</span></span> &#123;</span><br><span class="line">	<span class="comment">// 弹出最后一个元素</span></span><br><span class="line">	length := <span class="built_in">len</span>(s.stackDate)</span><br><span class="line">	<span class="keyword">if</span> length == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> num, errors.New(<span class="string">"stack is empty"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	num = s.stackDate[length<span class="number">-1</span>]</span><br><span class="line">	<span class="keyword">if</span> last := s.stackMin[<span class="built_in">len</span>(s.stackMin)<span class="number">-1</span>]; last == num &#123;</span><br><span class="line">		s.stackMin = s.stackMin[:<span class="built_in">len</span>(s.stackMin)<span class="number">-1</span>]</span><br><span class="line">	&#125;</span><br><span class="line">	s.stackDate = s.stackDate[:length<span class="number">-1</span>]</span><br><span class="line">	<span class="keyword">return</span> num, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取当前栈中最小值</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *GetMinStack)</span> <span class="title">getMin</span><span class="params">()</span> <span class="params">(num <span class="keyword">int</span>, err error)</span></span>&#123;</span><br><span class="line">	<span class="comment">// 获取最小值</span></span><br><span class="line">	<span class="keyword">if</span> length := <span class="built_in">len</span>(s.stackMin); length &lt;= <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> num, errors.New(<span class="string">"statck is empty"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	num = s.stackMin[<span class="built_in">len</span>(s.stackMin)<span class="number">-1</span>]</span><br><span class="line">	<span class="keyword">return</span> num, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 设计一个具有获取最小值的stack</span></span><br><span class="line">	m := <span class="built_in">new</span>(GetMinStack)</span><br><span class="line">	m.stackMin = []<span class="keyword">int</span>&#123;&#125;</span><br><span class="line">	m.stackDate = []<span class="keyword">int</span>&#123;&#125;</span><br><span class="line">	<span class="keyword">var</span> n GetMin = m</span><br><span class="line">	n.push(<span class="number">2</span>)</span><br><span class="line">	n.push(<span class="number">2</span>)</span><br><span class="line">	n.push(<span class="number">3</span>)</span><br><span class="line">	n.push(<span class="number">4</span>)</span><br><span class="line">	n.push(<span class="number">1</span>)</span><br><span class="line">	fmt.Println(m.stackDate, m.stackMin)</span><br><span class="line">	mindata, err := n.getMin()</span><br><span class="line">	fmt.Println(mindata, err)</span><br><span class="line">	data,err := n.pop()</span><br><span class="line">	fmt.Println(data, err)</span><br><span class="line">	fmt.Println(m.stackDate, m.stackMin)</span><br><span class="line">	data1, err := n.pop()</span><br><span class="line">	fmt.Println(data1, err)</span><br><span class="line">	fmt.Println(m.stackDate, m.stackMin)</span><br><span class="line">	data2, err := n.pop()</span><br><span class="line">	fmt.Println(data2, err)</span><br><span class="line">	fmt.Println(m.stackDate, m.stackMin)</span><br><span class="line">	data3, err := n.pop()</span><br><span class="line">	fmt.Println(data3, err)</span><br><span class="line">	fmt.Println(m.stackDate, m.stackMin)</span><br><span class="line">	data4, err := n.pop()</span><br><span class="line">	fmt.Println(data4, err)</span><br><span class="line">	mindata1, err := n.getMin()</span><br><span class="line">	fmt.Println(mindata1, err)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 输出结果</span></span><br><span class="line">    [<span class="number">2</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">1</span>] [<span class="number">2</span> <span class="number">2</span> <span class="number">1</span>]</span><br><span class="line">    <span class="number">1</span> &lt;<span class="literal">nil</span>&gt;</span><br><span class="line">    <span class="number">1</span> &lt;<span class="literal">nil</span>&gt;</span><br><span class="line">    [<span class="number">2</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span>] [<span class="number">2</span> <span class="number">2</span>]</span><br><span class="line">    <span class="number">4</span> &lt;<span class="literal">nil</span>&gt;</span><br><span class="line">    [<span class="number">2</span> <span class="number">2</span> <span class="number">3</span>] [<span class="number">2</span> <span class="number">2</span>]</span><br><span class="line">    <span class="number">3</span> &lt;<span class="literal">nil</span>&gt;</span><br><span class="line">    [<span class="number">2</span> <span class="number">2</span>] [<span class="number">2</span> <span class="number">2</span>]</span><br><span class="line">    <span class="number">2</span> &lt;<span class="literal">nil</span>&gt;</span><br><span class="line">    [<span class="number">2</span>] [<span class="number">2</span>]</span><br><span class="line">    <span class="number">2</span> &lt;<span class="literal">nil</span>&gt;</span><br><span class="line">    <span class="number">0</span> statck is empty</span><br><span class="line">符合预期</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>方案二实现</p>
+  <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"errors"</span></span><br><span class="line">	<span class="string">"fmt"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> GetMin <span class="keyword">interface</span>&#123;</span><br><span class="line">	push(<span class="keyword">int</span>)</span><br><span class="line">	pop() (<span class="keyword">int</span>, error)</span><br><span class="line">	getMin() (<span class="keyword">int</span>, error)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> GetMinStack <span class="keyword">struct</span> &#123;</span><br><span class="line">	stackDate []<span class="keyword">int</span></span><br><span class="line">	stackMin []<span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 方法二 押入时，判断最小栈的值。进行重复押入</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *GetMinStack)</span> <span class="title">push</span><span class="params">(num <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="comment">// 实现押入方法</span></span><br><span class="line">	s.stackDate = <span class="built_in">append</span>(s.stackDate, num)</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(s.stackMin) == <span class="number">0</span> &#123;</span><br><span class="line">		s.stackMin = <span class="built_in">append</span>(s.stackMin, num)</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="comment">// 取出最后一个</span></span><br><span class="line">		last := s.stackMin[<span class="built_in">len</span>(s.stackMin)<span class="number">-1</span>]</span><br><span class="line">		<span class="keyword">if</span> num &lt;= last &#123;</span><br><span class="line">			s.stackMin = <span class="built_in">append</span>(s.stackMin, num)</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="comment">// 重复押入</span></span><br><span class="line">			s.stackMin = <span class="built_in">append</span>(s.stackMin, last)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 弹出时，双栈弹出</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *GetMinStack)</span> <span class="title">pop</span><span class="params">()</span><span class="params">(num <span class="keyword">int</span>, err error)</span></span> &#123;</span><br><span class="line">	<span class="comment">// 弹出最后一个元素</span></span><br><span class="line">	length := <span class="built_in">len</span>(s.stackDate)</span><br><span class="line">	<span class="keyword">if</span> length == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> num, errors.New(<span class="string">"stack is empty"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	num = s.stackDate[length<span class="number">-1</span>]</span><br><span class="line">	s.stackDate = s.stackDate[:length<span class="number">-1</span>]</span><br><span class="line">	s.stackMin = s.stackMin[:<span class="built_in">len</span>(s.stackMin)<span class="number">-1</span>]</span><br><span class="line">	<span class="keyword">return</span> num, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取最小值</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *GetMinStack)</span> <span class="title">getMin</span><span class="params">()</span> <span class="params">(num <span class="keyword">int</span>, err error)</span></span>&#123;</span><br><span class="line">	<span class="comment">// 获取最小值</span></span><br><span class="line">	<span class="keyword">if</span> length := <span class="built_in">len</span>(s.stackMin); length &lt;= <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> num, errors.New(<span class="string">"statck is empty"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	num = s.stackMin[<span class="built_in">len</span>(s.stackMin)<span class="number">-1</span>]</span><br><span class="line">	<span class="keyword">return</span> num, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 设计一个具有获取最小值的stack</span></span><br><span class="line">	m := <span class="built_in">new</span>(GetMinStack)</span><br><span class="line">	m.stackMin = []<span class="keyword">int</span>&#123;&#125;</span><br><span class="line">	m.stackDate = []<span class="keyword">int</span>&#123;&#125;</span><br><span class="line">	<span class="keyword">var</span> n GetMin = m</span><br><span class="line">	n.push(<span class="number">2</span>)</span><br><span class="line">	n.push(<span class="number">2</span>)</span><br><span class="line">	n.push(<span class="number">3</span>)</span><br><span class="line">	n.push(<span class="number">4</span>)</span><br><span class="line">	n.push(<span class="number">1</span>)</span><br><span class="line">	fmt.Println(m.stackDate, m.stackMin)</span><br><span class="line">	mindata, err := n.getMin()</span><br><span class="line">	fmt.Println(mindata, err)</span><br><span class="line">	data,err := n.pop()</span><br><span class="line">	fmt.Println(data, err)</span><br><span class="line">	fmt.Println(m.stackDate, m.stackMin)</span><br><span class="line">	data1, err := n.pop()</span><br><span class="line">	fmt.Println(data1, err)</span><br><span class="line">	fmt.Println(m.stackDate, m.stackMin)</span><br><span class="line">	data2, err := n.pop()</span><br><span class="line">	fmt.Println(data2, err)</span><br><span class="line">	fmt.Println(m.stackDate, m.stackMin)</span><br><span class="line">	data3, err := n.pop()</span><br><span class="line">	fmt.Println(data3, err)</span><br><span class="line">	fmt.Println(m.stackDate, m.stackMin)</span><br><span class="line">	data4, err := n.pop()</span><br><span class="line">	fmt.Println(data4, err)</span><br><span class="line">	mindata1, err := n.getMin()</span><br><span class="line">	fmt.Println(mindata1, err)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 结果如下</span></span><br><span class="line">    [<span class="number">2</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">1</span>] [<span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">1</span>]</span><br><span class="line">    <span class="number">1</span> &lt;<span class="literal">nil</span>&gt;</span><br><span class="line">    <span class="number">1</span> &lt;<span class="literal">nil</span>&gt;</span><br><span class="line">    [<span class="number">2</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span>] [<span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span>]</span><br><span class="line">    <span class="number">4</span> &lt;<span class="literal">nil</span>&gt;</span><br><span class="line">    [<span class="number">2</span> <span class="number">2</span> <span class="number">3</span>] [<span class="number">2</span> <span class="number">2</span> <span class="number">2</span>]</span><br><span class="line">    <span class="number">3</span> &lt;<span class="literal">nil</span>&gt;</span><br><span class="line">    [<span class="number">2</span> <span class="number">2</span>] [<span class="number">2</span> <span class="number">2</span>]</span><br><span class="line">    <span class="number">2</span> &lt;<span class="literal">nil</span>&gt;</span><br><span class="line">    [<span class="number">2</span>] [<span class="number">2</span>]</span><br><span class="line">    <span class="number">2</span> &lt;<span class="literal">nil</span>&gt;</span><br><span class="line">    <span class="number">0</span> statck is empty</span><br><span class="line">符合预期</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<p>​    </p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/06/29/%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E6%9C%89getMin%E5%8A%9F%E8%83%BD%E7%9A%84%E6%A0%88/" data-id="ckc4dmu530001uu017lxn8ktb" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/06/30/%E5%8F%8C%E6%A0%88%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E9%98%9F%E5%88%97/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          栈与队列-2-由两个栈组成的队列
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/06/17/postgres%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">postgresql数据库安装</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/01/%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0%E6%A0%88%E9%80%86%E5%BA%8F/">栈与队列-3-递归实现栈的逆序</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/30/%E5%8F%8C%E6%A0%88%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E9%98%9F%E5%88%97/">栈与队列-2-由两个栈组成的队列</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/29/%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E6%9C%89getMin%E5%8A%9F%E8%83%BD%E7%9A%84%E6%A0%88/">栈与队列-1-设计一个有getMin功能的栈</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/17/postgres%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/">postgresql数据库安装</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 宋晓奎<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	<br>
+	 <div style="width:200px; margin:0 auto; padding:2px 0;">
+	 <a href="http://www.beian.miit.gov.cn/"  style="color:#f72b07" target="_blank">浙ICP备20022863号</a>
+
+	</div>
+	<div style="width:300px;margin:0 auto; padding:2px 0;">
+	<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33010402004239" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;text-align: center">
+          <img src="/img/back.png" style="float:left;"/>
+          	<p style="float:left;height:20px;line-height:20px;margin: 0px 0px 0px 5px; color:#939393;">浙公网安备 33010402004239号
+            </p>
+					</a>
+</div>	 
+    </div>
+	 <div style="width:400px;margin:0 auto; padding:2px 0;">	
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div calss="count-span">
+	<span id="busuanzi_container_site_pv">
+		本站总访问量<span id="busuanzi_value_site_pv"></span>次
+	</span>
+	<span id="busuanzi_container_site_uv">
+		本站总访客数<span id="busuanzi_value_site_uv"></span>人
+	</span>
+	<span id="busuanzi_container_page_pv">
+		本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+	</div>
+	
+	
+<!--《添加网站运行时间 -->
+<!--<br/>-->
+<div style="width:350px;margin:0 auto; padding:2px 0;">
+<span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+</div>
+<script>
+    var now = new Date();
+
+    function createtime() {
+        var grt = new Date("06/29/2020 12:00:00"); //此处修改你的建站时间或者网站上线时间 
+        now.setTime(now.getTime() + 250);
+        days = (now - grt) / 1000 / 60 / 60 / 24;
+        dnum = Math.floor(days);
+        hours = (now - grt) / 1000 / 60 / 60 - (24 * dnum);
+        hnum = Math.floor(hours);
+        if (String(hnum).length == 1) {
+            hnum = "0" + hnum;
+        }
+        minutes = (now - grt) / 1000 / 60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes);
+        if (String(mnum).length == 1) {
+            mnum = "0" + mnum;
+        }
+        seconds = (now - grt) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds);
+        if (String(snum).length == 1) {
+            snum = "0" + snum;
+        }
+        document.getElementById("timeDate").innerHTML = "   " +  " 本站已安全运行 " + dnum + " 天 ";
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+    }
+    setInterval("createtime()", 300);
+</script>
+<!-- 添加网站运行时间》 -->	
+
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
