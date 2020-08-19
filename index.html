@@ -68,6 +68,493 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Golang调度器GMP原理与调度全分析" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/08/18/Golang%E8%B0%83%E5%BA%A6%E5%99%A8GMP%E5%8E%9F%E7%90%86%E4%B8%8E%E8%B0%83%E5%BA%A6%E5%85%A8%E5%88%86%E6%9E%90/" class="article-date">
+  <time datetime="2020-08-17T16:00:00.000Z" itemprop="datePublished">2020-08-18</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Golang/">Golang</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/08/18/Golang%E8%B0%83%E5%BA%A6%E5%99%A8GMP%E5%8E%9F%E7%90%86%E4%B8%8E%E8%B0%83%E5%BA%A6%E5%85%A8%E5%88%86%E6%9E%90/">Golang调度器GMP原理与调度全分析</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="一-Go调度器GPM分析"><a href="#一-Go调度器GPM分析" class="headerlink" title="一  Go调度器GPM分析"></a>一  Go调度器GPM分析</h1><ul>
+<li><h4 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h4><ul>
+<li><h6 id="单进程"><a href="#单进程" class="headerlink" title="单进程"></a>单进程</h6><p><img src="https://cdn.learnku.com/uploads/images/202003/11/58489/06IoYRyruP.png!large" alt="单进程任务串行调度"></p>
+<p>​        早起的操作系统是单核单任务执行，在进行进程调度时，会随着时间推移，CPU会进行调度，在一个时间段内执行一个进程，只有当一个进程执行完成之后，才能继续执行下一个进程。在一个时间段内，有且只有一个任务在被执行。每一个程序或者应用都是串行执行，执行效率低。</p>
+<p>​        于是产生了以下问题：</p>
+<p>​        单核执行，每次只能执行一个单一的流程；</p>
+<p>​        如果被执行的进程任务被阻塞，则会带来CPU的浪费；</p>
+<p>​        于是就有了后续的操作系统的并发操作，当CPU执行某个进程被阻塞时，CPU就会自动切换到其他等待执行的任务，并将挂起的任务的环境与上下文进行保存，这样可以继续执行其他的进程，避免了CPU的浪费与等待。    </p>
+</li>
+<li><h6 id="并行"><a href="#并行" class="headerlink" title="并行"></a>并行</h6><p>​        在多核操作系统中，同一时间、同一时刻多任务同时执行，每一个核都在同时进行任务的调度，每一个核的CPU同一时刻只有一个任务进行调度。</p>
+</li>
+<li><h6 id="并发"><a href="#并发" class="headerlink" title="并发"></a>并发</h6><p>​        在一个CPU进行多任务调度时，会按照时间片进行轮询调度执行任务，在一个CPU调度的时间轴中，一个时间点下，有且只有一个任务被调用。</p>
+<p>​    <img src="https://cdn.learnku.com/uploads/images/202003/11/58489/sLve6TagD3.png!large" alt="CPU并发调度">        在多进程或多线程的操作系统中，解决了单任务的阻塞现象。只要某个进程产生阻塞，则CPU自动切换到其他的进程或线程进行执行，这样，每个进程在宏观上就表现的同时在执行。但是也会存在很多的问题。</p>
+<p>​        不同进程之间的任务在CPU进行切换时，需要保存太多的系统资源以及上下文资源。进程的创建、切换、销毁都会占用过多的时间，如果进程的数量太多，则大部分的时间都浪费在进程之间的调度，缩短了进程的执行时间。</p>
+<p>​        <img src="https://cdn.learnku.com/uploads/images/202003/11/58489/dNWd00AiEZ.png!large" alt="CPU工作流程"></p>
+<p>​        在一个进程内，如果执行多线程，在os层线程的设计变得更加复杂，而且在同一个进程内的线程之间资源共享、锁的操作更加复杂。</p>
+<p>​        多进程、多线程的壁垒：</p>
+<p>​        高内存占用：开辟一个进程所占用的虚拟内存约4G（在32bit Os），开辟一个线程所需要占用的资源也要4M。</p>
+<p>​        高CPU调度消耗：大部分的操作都在进行多任务切换时系统资源的消耗。</p>
+</li>
+<li><h6 id="协程-co-routine"><a href="#协程-co-routine" class="headerlink" title="协程 co-routine"></a>协程 co-routine</h6><p>​        协程是依赖与os 线程之上的’’用户态’’的线程，即用户态多任务的方式。</p>
+<p>​        线程分为“内核态“线程和”用户态“线程，内核态线程，即os Thread，为CPU所识别的线程，由底层操 </p>
+<p>作系统进行调用；用户态线程即协程，绑定在内核态线程之上。</p>
+<p>​        <img src="https://cdn.learnku.com/uploads/images/202003/11/58489/TfStmYsfyF.png!large" alt="线程的内核与用户态"></p>
+<p>​        如上图所示：CPU所能调度的是内核态线程，由操作系统所调度。CPU识别不了用户态线程，CPU视野之内只识别内核态线程。用户态线程即co-routine。</p>
+<p>​        <img src="https://cdn.learnku.com/uploads/images/202003/11/58489/vgzlKzvOUL.png!large" alt="协程和线程"></p>
+</li>
+</ul>
+</li>
+<li><h4 id="协程模型"><a href="#协程模型" class="headerlink" title="协程模型"></a>协程模型</h4><ul>
+<li><h6 id="协程与内核态线程N-1模型"><a href="#协程与内核态线程N-1模型" class="headerlink" title="协程与内核态线程N:1模型"></a>协程与内核态线程N:1模型</h6><p>​    <img src="https://cdn.learnku.com/uploads/images/202003/12/58489/kfPbThcyRU.png!large" alt="N:1模型"></p>
+<p>​        如上图所示： N个协程绑定1个os Thread；</p>
+<p>​        优点：多任务的切换在用户态线程下完成，不会陷入到内核态。切换非常迅速方便。</p>
+<p>​        缺点： 一个进程上所有协程都绑定在一个内核态线程上，没有充分的使用硬件多核CPU加速处理的力；一旦某个执行的协程出现了阻塞现象，则这个进程中其他的协程都没办法继续执行下去，丧失了并发的能力，阻塞瓶颈；</p>
+</li>
+<li><h6 id="协程与内核态线程1-1模型"><a href="#协程与内核态线程1-1模型" class="headerlink" title="协程与内核态线程1:1模型"></a>协程与内核态线程1:1模型</h6><p>​        <img src="https://cdn.learnku.com/uploads/images/202003/11/58489/EhNQY2VCpk.png!large" alt="1:1模型">        1:1模型中，一个协程绑定一个线程，这样的模式和单线程其实没有太多的区别，协程的调度随着os thread的调度而调度，都是由CPU完成调度，也进行协程频繁的创建、切换与销毁，代价昂贵。</p>
+</li>
+<li><h6 id="协程与内核态线程N-M模型"><a href="#协程与内核态线程N-M模型" class="headerlink" title="协程与内核态线程N:M模型"></a>协程与内核态线程N:M模型</h6><p>​        <img src="https://cdn.learnku.com/uploads/images/202003/12/58489/ANDQLx3g9U.png!large" alt="M:N模型">        M:N模型，故名思义，是多个协程和多个os Thread进行绑定。</p>
+<p>​        线程的调度是有CPU抢占式调度；协程的调度在用户态下通过协程调度器进行协作式调度，一个协程让出CPU之后，才会执行下一个协程；</p>
+<p>​        优点：能够充分的利用多核的特效，进行多任务的调度与处理；</p>
+<p>​        缺点：过于依赖协程调度器的优化与算法。</p>
+</li>
+</ul>
+</li>
+<li><h4 id="Go的协程goroutine"><a href="#Go的协程goroutine" class="headerlink" title="Go的协程goroutine"></a>Go的协程goroutine</h4><p>​        go中的协程，由co-routine改为goroutine，不仅仅是名字的更改，goroutine是用户态的线程，可以让一组可复用的函数运行在一组os Thread之上。即便协程出现阻塞，运行在该线程之上的其他协程也可以被runtime所调度，转移到其他可运行的线程上进行执行。goroutine非常的轻量，开辟一个协程只要几kb，并且几kb的资源就能将goroutine运行完成。</p>
+<p>​        特点：</p>
+<p>​        高并发：在有限的内存内，支持大量轻量级的goroutine，支持了更高的并发；</p>
+<p>​        灵活调度：虽然在创建协程时分配的内存为几kb，但是如果业务需求，runtime会进行内存的扩充，伸缩调控，为goroutine进行内存分配。</p>
+</li>
+<li><h4 id="GM调度器"><a href="#GM调度器" class="headerlink" title="GM调度器"></a>GM调度器</h4><p>​        <img src="https://cdn.learnku.com/uploads/images/202003/11/58489/Af6GQ3GSlb.png!large" alt="GM含义">    <img src="https://cdn.learnku.com/uploads/images/202003/11/58489/uWk9pzdREk.png!large" alt="GM调度器"></p>
+<p>​        G：goroutine协程</p>
+<p>​        M：os Thread 内核态线程</p>
+<p>说明:</p>
+<p>​        一个进程内的有M1-M3个线程，每个线程要执行G或者放回G，必须要访问全局G队列。多线程对同一资源进行竞争时，会加锁对资源进行互斥与同步。所以，全局G队列是被锁进行保护。要想获取全局G队列中的goroutine，必须先获取锁，才能进行执行。</p>
+<p>GM调度器缺陷：</p>
+<p>​        创建、销毁、调度G都需要每个M获取锁，这就形成了激烈的锁竞争。</p>
+<p>​        M转移G会造成延迟和额外的系统负载。比如当G中包含创建新协程的时候，M创建了G’，为了继续执行G，需要把G’交给M’执行，也造成了很差的局部性，因为G’和G是相关的，最好放在M上执行，而不是其他M’。 系统调用(CPU在M之间的切换)导致频繁的线程阻塞和取消阻塞操作增加了系统开销。</p>
+</li>
+<li><h4 id="GMP调度器"><a href="#GMP调度器" class="headerlink" title="GMP调度器"></a>GMP调度器</h4><ul>
+<li><h6 id="何为GPM"><a href="#何为GPM" class="headerlink" title="何为GPM"></a>何为GPM</h6><p>​        面对之前调度器的问题，Go设计了新的调度器。 在新调度器中，除了M(thread)和G(goroutine)，又引进了P(Processor)。</p>
+<p>​        <em>G</em> 代表一个Goroutine；</p>
+<p>​        <em>M</em> 代表一个操作系统的线程；</p>
+<p>​        <em>P</em> 代表一个CPU处理器，通常P的数量等于CPU核数（<em>GOMAXPROCS</em>）；</p>
+<p>​        其中：</p>
+<p>​        G协程时运行在os Thread线程之上；</p>
+<p>​        每一个要运行的线程，必须要和P（处理器）进行绑定，否则在全局线程队列中处理休眠状态，获取到P的线程分为执行线程、自旋线程。且程序中的多个<em>M</em>并不会同时都处于执行状态，最多只有GOMAXPROCS个线程在运行。</p>
+<p>​        <img src="https://cdn.learnku.com/uploads/images/202003/11/58489/zaZ4nQYcZe.png!large" alt="GMP定义">        Processor，它包含了运行goroutine的资源，如果线程想运行goroutine，必须先获取P，P中还包含了运行的G队列，叫做P的本地队列。</p>
+</li>
+<li><h6 id="GMP模型"><a href="#GMP模型" class="headerlink" title="GMP模型"></a>GMP模型</h6><p>​        在Go中，线程是运行goroutine的实体，调度器的功能是把可运行的goroutine分配到工作线程上。</p>
+</li>
+</ul>
+<p>​        <img src="https://cdn.learnku.com/uploads/images/202003/11/58489/Ugu3C2WSpM.jpeg!large" alt="GMP模型"></p>
+<p>流程说明：</p>
+<p>​        其一： 多核操作系统的硬件CPU被操作系统调度器所进行调度，从而对内核态的线程进行调度与执行；这个是由操作系统所进行的调度；</p>
+<p>​        其二：每一个线程要执行goroutine时，必须先要和调度器P进行绑定，此时P会和起一个队列，为P的本地队列，进行存储将要执行的G。如果本地队列达到设置限制数量，则会将本地队列中一半的G和新创建的G放入到全局G队列中，等待被其他的线程所绑定的P进行获取与调度。当然如果创建新的G时，如果当前线程所绑定的P本地队列没有满，则优先加入到P的本地队列中。</p>
+<p>​        其三：P队列，当程序运行时就会创建P处理器，并存储在列表中，即P的全局队列，其最大的数量为GOMAXPROCS的个数，可以使用runtime进行配置，每个线程会去对P进行竞争获取；</p>
+<p>​        其四：线程M想要运行，就先要从P队列中获取P，并与之进行绑定，然后优先执行P的本地队列中的任务；当本地P队列中G数量为空时，便优先从全局G列中获取  min(len(GQ)/GOMAXPROCS + 1, len(GQ)/2)个goroutine放入到本地队列中，有P的G0进行调度；如果全局G队列也是空，则会从别的P中偷取一半的G放入到本地队列中进行执行(从尾部偷取)；</p>
+<p>​        其五：goroutine调度器和os调度器通过线程M结合，os调度器负责将M运行在CPU内核上，而goroutine调度器则负责将协程在线程上进行切换，降低了内核态对线程切换资源的开销与延迟。</p>
+<ul>
+<li><h6 id="P与M数量问题"><a href="#P与M数量问题" class="headerlink" title="P与M数量问题"></a>P与M数量问题</h6><p>​        P：P的数量是通过环境变量中 GOMAXPROCS或者runtime.GOMAXPROCS(num)进行设置；默认当前服务器最大CPU核数；</p>
+<p>​        M： go语言默认设置的最大线程数量为10000；当然可以有runtime/debug中的SetMaxThreads函数，设置M的最大数量；在实际运行过程中，当一个M阻塞时，将绑定的P-M进行解绑，然后先判断全局线程队列中是否存在空闲的M，如果没有，就会创建一个新的M。</p>
+</li>
+<li><h6 id="P与M的创建时机"><a href="#P与M的创建时机" class="headerlink" title="P与M的创建时机"></a>P与M的创建时机</h6><p>​        P何时创建：在确定了P的最大数量n后，运行时系统会根据这个数量创建n个P</p>
+<p>​        M何时创建：没有足够的M来关联P并运行其中的可运行的G。比如所有的M此时都阻塞住了，而P中还有很多就绪任务，就会去寻找空闲的M，而没有空闲的，就会去创建新的M。</p>
+</li>
+</ul>
+</li>
+<li><h4 id="GMP调度器调度策略"><a href="#GMP调度器调度策略" class="headerlink" title="GMP调度器调度策略"></a>GMP调度器调度策略</h4><ul>
+<li><h6 id="复用线程"><a href="#复用线程" class="headerlink" title="复用线程"></a>复用线程</h6><p>​    复用线程：避免频繁的创建、销毁线程，而是对线程的复用，降低系统开销；</p>
+<ul>
+<li><h6 id="work-stealing"><a href="#work-stealing" class="headerlink" title="work stealing"></a>work stealing</h6><p>​        当本线程所绑定的本地队列P为空时，并且全局G队列中也没有可运行的G，此时将会从其他线程所绑定的P中去偷取一半的G（向下取整）进行调度执行。</p>
+</li>
+<li><h6 id="hand-off"><a href="#hand-off" class="headerlink" title="hand off"></a>hand off</h6><p>​        当本地线程执行的G任务进行阻塞，此时就会将P与M进行解绑，如果P中存在待执行的G，则P会从全局线程队列中获取一个空闲的M与之绑定继续执行；</p>
+</li>
+</ul>
+</li>
+<li><h6 id="利用并行"><a href="#利用并行" class="headerlink" title="利用并行"></a>利用并行</h6><p>​      GOMAXPROCS设置P的数量，最多有GOMAXPROCS个线程分布在多个CPU上同时运行。GOMAXPROCS也限制了并发的程度，比如GOMAXPROCS = 核数/2，则最多利用了一半的CPU核进行并行。</p>
+</li>
+<li><h6 id="抢占"><a href="#抢占" class="headerlink" title="抢占"></a>抢占</h6><p>​        在coroutine中要等待一个协程主动让出CPU才执行下一个协程，在Go中，一个goroutine最多占用CPU 10ms，防止其他goroutine被饿死，这就是goroutine不同于coroutine的一个地方。</p>
+</li>
+<li><h6 id="全局G队列"><a href="#全局G队列" class="headerlink" title="全局G队列"></a>全局G队列</h6><p>​        在新的调度器中依然有全局G队列，但功能已经被弱化了，当M执行work stealing从其他P偷不到G时，它可以从全局G队列获取G。</p>
+</li>
+</ul>
+</li>
+<li><h4 id="调度流程分析"><a href="#调度流程分析" class="headerlink" title="调度流程分析"></a>调度流程分析</h4><p>​        <img src="https://cdn.learnku.com/uploads/images/202003/11/58489/a4vWtvRWGQ.jpeg!large" alt="go func()调度分析">从上图我们可以分析出几个结论：</p>
+<p>​        1、我们通过 go func()来创建一个goroutine；</p>
+<p>​        2、有两个存储G的队列，一个是局部调度器P的本地队列、一个是全局G队列。新创建的G会先保存在P的本地队列中，如果P的本地队列已经满了就会保存在全局的队列中； </p>
+<p>​        3、G只能运行在M中，一个M必须持有一个P，M与P是1：1的关系。M会从P的本地队列弹出一个可执行状态的G来执行，如果P的本地队列为空，就会想其他的MP组合偷取一个可执行的G来执行；</p>
+<p>​        4、一个M调度G执行的过程是一个循环机制； </p>
+<p>​        5、当M执行某一个G时候如果发生了syscall或则其余阻塞操作，M会阻塞，如果当前有一些G在执行，runtime会把这个线程M从P中摘除(detach)，然后再创建一个新的操作系统的线程(如果有空闲的线程可用就复用空闲线程)来服务于这个P； </p>
+<p>​        6、当M系统调用结束时候，这个G会尝试获取一个空闲的P执行，并放入到这个P的本地队列。如果获取不到P，那么这个线程M变成休眠状态， 加入到空闲线程中，然后这个G会被放入全局队列中。</p>
+</li>
+<li><h4 id="调度生命周期"><a href="#调度生命周期" class="headerlink" title="调度生命周期"></a>调度生命周期</h4><p>​        <img src="https://cdn.learnku.com/uploads/images/202003/11/58489/j37FX8nek9.png!large" alt="生命周期"></p>
+<p>特殊的M0和G0 </p>
+<p>​        <em>M0</em>： M0是启动程序后的编号为0的主线程，这个M对应的实例会在全局变量runtime.m0中，不需要在heap上分配，M0负责执行初始化操作和启动第一个G， 在之后M0就和其他的M一样了。</p>
+<p>​        <em>G0</em> ：G0是每次启动一个M都会第一个创建的gourtine，G0仅用于负责调度的G，G0不指向任何可执行的函数, 每个M都会有一个自己的G0。在调度或系统调用时会使用G0的栈空间, 全局变量的G0是M0的G0。</p>
+<h6 id="代码实战分析"><a href="#代码实战分析" class="headerlink" title="代码实战分析"></a>代码实战分析</h6><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    fmt.Println(<span class="string">"Hello world"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>  接下来我们来针对上面的代码对调度器里面的结构做一个分析：</p>
+<p> 也会经历如上图所示的过程： </p>
+<p>​        其一：runtime创建起始线程M0和goroutine G0，并把2者关联。</p>
+<p>​        其二：调度器初始化：初始化M0、栈、GC，以及创建和初始化由GOMAXPROCS个P构成的P列表。 示例代码中的main函数是main.main，runtime中也有1个main函数——runtime.main，代码经过编译后，runtime.main会调用main.main，程序启动时会为runtime.main创建goroutine，称它为main goroutin吧，然后把main goroutine加入到P的本地队列。 </p>
+<p>​        其三：启动M0，M0已经绑定了P，会从P的本地队列获取G，获取到main goroutine。 </p>
+<p>​        其四：G拥有栈，M根据G中的栈信息和调度信息设置运行环境 M运行G, 执行完协程后G退出，再次回到M。获取可运行的G，这样重复下去，直到main.main退出，runtime.main执行Defer和Panic处理，或调用runtime.exit退出程序。 </p>
+<p>​        其五：调度器的生命周期几乎占满了一个Go程序的一生，runtime.main的goroutine执行之前都是为调度器做准备工作，runtime.main的goroutine运行，才是调度器的真正开始，直到runtime.main结束而结束。</p>
+</li>
+</ul>
+<ul>
+<li><h4 id="GPM可视化编程"><a href="#GPM可视化编程" class="headerlink" title="GPM可视化编程"></a>GPM可视化编程</h4><ul>
+<li><h6 id="使用go-tool-trace-trace-out进行分析"><a href="#使用go-tool-trace-trace-out进行分析" class="headerlink" title="使用go tool trace trace.out进行分析"></a>使用go tool trace trace.out进行分析</h6><p>​        trace记录了运行时的信息，并提供了web进行可视化追踪；</p>
+<p>​        简单测试代码：main函数创建trace，trace会运行在单独的goroutine中，然后main打印”Hello World”退出。</p>
+<p>​        trace.go</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"os"</span></span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"runtime/trace"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//创建trace文件</span></span><br><span class="line">    f, err := os.Create(<span class="string">"trace.out"</span>)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(err)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">defer</span> f.Close()</span><br><span class="line"></span><br><span class="line">    <span class="comment">//启动trace goroutine</span></span><br><span class="line">    err = trace.Start(f)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(err)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">defer</span> trace.Stop()</span><br><span class="line"></span><br><span class="line">    <span class="comment">//main</span></span><br><span class="line">    fmt.Println(<span class="string">"Hello World"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行程序会得到一个trace.out文件；</p>
+<p>使用工具进行打开：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> tool trace trace.out</span><br></pre></td></tr></table></figure>
+
+<p>得到下列输出：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">austsxkdeMacBook-Pro:tour austsxk$ <span class="keyword">go</span> tool trace trace.out </span><br><span class="line"><span class="number">2020</span>/<span class="number">08</span>/<span class="number">19</span> <span class="number">21</span>:<span class="number">53</span>:<span class="number">01</span> Parsing trace...</span><br><span class="line"><span class="number">2020</span>/<span class="number">08</span>/<span class="number">19</span> <span class="number">21</span>:<span class="number">53</span>:<span class="number">01</span> Splitting trace...</span><br><span class="line"><span class="number">2020</span>/<span class="number">08</span>/<span class="number">19</span> <span class="number">21</span>:<span class="number">53</span>:<span class="number">01</span> Opening browser. Trace viewer is listening on http:<span class="comment">//127.0.0.1:57842</span></span><br></pre></td></tr></table></figure>
+
+<p>访问<strong><a href="http://127.0.0.1:57842" target="_blank" rel="noopener">http://127.0.0.1:57842</a></strong>,可以得到下面界面：</p>
+<p><img src="../../post_img/trace1.png" alt="trace首页"></p>
+<p>点击 View trace：</p>
+<p><img src="../../post_img/trace2.png" alt="view trace"></p>
+<p><strong>G 信息</strong></p>
+</li>
+</ul>
+<p>​        点击 Goroutines 那一行可视化的数据条，我们会看到一些详细的信息。</p>
+<p><img src="https://cdn.learnku.com/uploads/images/202003/11/58489/QLm0KK1hhd.png!large" alt="go-trace.png"></p>
+<p>​         一共有两个G在程序中，一个是特殊的G0，是每个M必须有的一个初始化的G，这个我们不必讨论。</p>
+<p>​        其中 G1 应该就是 main goroutine (执行 main 函数的协程)，在一段时间内处于可运行和运行的状态。</p>
+<p>​        <strong>M 信息</strong></p>
+<p>​        点击 Threads 那一行可视化的数据条，我们会看到一些详细的信息。</p>
+<p><img src="https://cdn.learnku.com/uploads/images/202003/11/58489/mYYA4V17yF.png!large" alt="M信息"></p>
+<p>​        一共有两个 M 在程序中，一个是特殊的 M0，用于初始化使用，这个我们不必讨论。</p>
+<p>​        <strong>P 信息</strong></p>
+<p>​        <img src="https://cdn.learnku.com/uploads/images/202003/11/58489/QbWwbth8uN.png!large" alt="P信息"></p>
+<p>​        G1 中调用了 main.main，创建了 trace goroutine g18。G1 运行在 P1 上，G18 运行在 P0 上。</p>
+<p>这里有两个 P，我们知道，一个 P 必须绑定一个 M 才能调度 G。</p>
+<p>​        我们在来看看上面的 M 信息。</p>
+<p><img src="https://cdn.learnku.com/uploads/images/202003/11/58489/5kS6NfpQAI.png!large" alt="M内部信息"></p>
+<p>​        我们会发现，确实 G18 在 P0 上被运行的时候，确实在 Threads 行多了一个 M 的数据，点击查看如下：</p>
+<p>​        多了一个 M2 应该就是 P0 为了执行 G18 而动态创建的 M2。</p>
+<ul>
+<li><h6 id="使用GODEBUG-schedtrace-时间段-可执行文件"><a href="#使用GODEBUG-schedtrace-时间段-可执行文件" class="headerlink" title="使用GODEBUG=schedtrace=时间段 可执行文件"></a>使用GODEBUG=schedtrace=时间段 可执行文件</h6><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"time"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">5</span>; i++ &#123;</span><br><span class="line">        time.Sleep(time.Second)</span><br><span class="line">        fmt.Println(<span class="string">"Hello World"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行go build trace2.go</p>
+<p>得到一个可执行文件 trace2，然后进行GODEBUG运行</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GODEBUG=schedtrace=<span class="number">1000</span> ./trace2 </span><br><span class="line">SCHED <span class="number">0</span>ms: gomaxprocs=<span class="number">2</span> idleprocs=<span class="number">0</span> threads=<span class="number">4</span> spinningthreads=<span class="number">1</span> idlethreads=<span class="number">1</span> runqueue=<span class="number">0</span> [<span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">Hello World</span><br><span class="line">SCHED <span class="number">1003</span>ms: gomaxprocs=<span class="number">2</span> idleprocs=<span class="number">2</span> threads=<span class="number">4</span> spinningthreads=<span class="number">0</span> idlethreads=<span class="number">2</span> runqueue=<span class="number">0</span> [<span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">Hello World</span><br><span class="line">SCHED <span class="number">2014</span>ms: gomaxprocs=<span class="number">2</span> idleprocs=<span class="number">2</span> threads=<span class="number">4</span> spinningthreads=<span class="number">0</span> idlethreads=<span class="number">2</span> runqueue=<span class="number">0</span> [<span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">Hello World</span><br><span class="line">SCHED <span class="number">3015</span>ms: gomaxprocs=<span class="number">2</span> idleprocs=<span class="number">2</span> threads=<span class="number">4</span> spinningthreads=<span class="number">0</span> idlethreads=<span class="number">2</span> runqueue=<span class="number">0</span> [<span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">Hello World</span><br><span class="line">SCHED <span class="number">4023</span>ms: gomaxprocs=<span class="number">2</span> idleprocs=<span class="number">2</span> threads=<span class="number">4</span> spinningthreads=<span class="number">0</span> idlethreads=<span class="number">2</span> runqueue=<span class="number">0</span> [<span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">Hello World</span><br></pre></td></tr></table></figure>
+
+<p><strong>SCHED</strong>：调试信息输出标志字符串，代表本行是goroutine调度器的输出； </p>
+<p><strong>0ms</strong>：即从程序启动到输出这行日志的时间；</p>
+<p><strong>gomaxprocs</strong>: P的数量，本例有2个P, 因为默认的P的属性是和cpu核心数量默认一致，当然也可以通过GOMAXPROCS来设置；</p>
+<p><strong>idleprocs</strong>: 处于idle状态的P的数量；通过gomaxprocs和idleprocs的差值，我们就可知道执行go代码的P的数量；</p>
+<p><strong>threads</strong>: os threads/M的数量，包含scheduler使用的m数量，加上runtime自用的类似sysmon这样的thread的数量；</p>
+<p><strong>spinningthreads</strong>: 处于自旋状态的os thread数量；</p>
+<p><strong>idlethread</strong>: 处于idle状态的os thread的数量；</p>
+<p><strong>runqueue=0</strong>： Scheduler全局队列中G的数量；</p>
+<p><strong>[0 0]</strong>: 分别为2个P的local queue中的G的数量。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="二-Go调度器调度场景分析"><a href="#二-Go调度器调度场景分析" class="headerlink" title="二 Go调度器调度场景分析"></a>二 Go调度器调度场景分析</h1><ul>
+<li><h3 id="局部性（协程创建的子协程添加到当前绑定的P-M的本地队列）"><a href="#局部性（协程创建的子协程添加到当前绑定的P-M的本地队列）" class="headerlink" title="局部性（协程创建的子协程添加到当前绑定的P-M的本地队列）"></a>局部性（协程创建的子协程添加到当前绑定的P-M的本地队列）</h3><p><img src="https://cdn.learnku.com/uploads/images/202003/11/58489/Pm8LOYcsWQ.png!large" alt="场景一:局部性.png"></p>
+<p>​        当程序运行之后，P和M1进行绑定，P都是运行在绑定的M上；此时P的本地队列中有G1，正在进行运行，当G1运行中需要另起一个goroutine即G2时，使用go func() 创建，G2会优先添加到当前P-M所绑定的P本地队列。好处：子鞋程可能会共享资源，减少了资源复制以及上下文切换的CPU开销；即创建的些称会优先添加到与至向关的Processer中；</p>
+</li>
+<li><h3 id="协程执行完毕（使用每个M所创建的G0进行goroutine切换）"><a href="#协程执行完毕（使用每个M所创建的G0进行goroutine切换）" class="headerlink" title="协程执行完毕（使用每个M所创建的G0进行goroutine切换）"></a>协程执行完毕（使用每个M所创建的G0进行goroutine切换）</h3><p><img src="https://cdn.learnku.com/uploads/images/202003/12/58489/JWDtmKG3rK.png!large" alt="场景二"></p>
+<p>​        如上图所描述：当G1执行完毕，M上运行的goroutine会先切换为G0，有G0统一负责调度协程切换(使用schedule进行调度),从本地队列P中获取goroutine,并开始执行协程(execute).从而实现了对os thread M1的重复使用.</p>
+</li>
+</ul>
+<ul>
+<li><h3 id="子协程的创建数目大于P限定的最大协程数目-无限开辟goroutine"><a href="#子协程的创建数目大于P限定的最大协程数目-无限开辟goroutine" class="headerlink" title="子协程的创建数目大于P限定的最大协程数目(无限开辟goroutine)"></a>子协程的创建数目大于P限定的最大协程数目(无限开辟goroutine)</h3><p><img src="https://cdn.learnku.com/uploads/images/202003/12/58489/UpjRxzIBd3.png!large" alt="场景三"></p>
+<ol>
+<li><p>如果G2创建6个协程,但是设置了所绑定的本地队列最大存储的goroutine的数目为4个.则前4个按照创建的局部性进行创建,在P1的本地队列中添加4个协程;</p>
+<p><img src="https://cdn.learnku.com/uploads/images/202003/11/58489/chqTgsiuWi.png!large" alt="场景四"></p>
+</li>
+<li><p>G2还要继续创建协程G7,此时发现P1本地队列已经满了,则进行负载均衡, 则先将P1本地队列进行二分法,取出队头的一半,然后将任务和创建的G7打乱顺序,将其放入到全局队列中, P本地队列队尾的任务自动前移;</p>
+<p><img src="https://cdn.learnku.com/uploads/images/202003/12/58489/nukEY92G6D.png!large" alt="场景五"></p>
+</li>
+<li><p>G2继续创建G8, 此时本地队列未满,将G8加入到本地队列P中;当时间轮询结束后,G2被加到本地队列中,等待调度;G8加入到P1点本地队列的原因还是因为P1此时在与M1绑定，而G2此时是M1在执行。所以G2创建的新的G会优先放置到自己的M绑定的P上。</p>
+</li>
+</ol>
+</li>
+</ul>
+<ul>
+<li><h3 id="创建G时唤醒自旋线程"><a href="#创建G时唤醒自旋线程" class="headerlink" title="创建G时唤醒自旋线程"></a>创建G时唤醒自旋线程</h3><p>​        <img src="https://cdn.learnku.com/uploads/images/202003/11/58489/2FWNXSuHfX.png!large" alt="场景六"></p>
+<p>​        在创建协程时，就会去唤醒os Thread Queue中的M，尝试去进行与空闲的Processer进行绑定，进行P-M组合。如果没有M，则不进行操作；如果全局队列中有M或者存在多个M，则取出M，队列中剩余的M前移，如果没有空闲的P，则返回队列中；当有空闲的P时，则进行绑定，绑定之后，就会产生G0调度协程进行初始化与调度；如果新绑定的P本地队列中没有goroutine，则线程一直处于等待状态，尝试work stealing 或从全局中获取待执行的任务；在此期间，G0在一直寻找任务，此时的线程为自旋线程。</p>
+</li>
+</ul>
+<ul>
+<li><h3 id="GMP内部的负载均衡（被唤醒的线程从全局队列中获取G）"><a href="#GMP内部的负载均衡（被唤醒的线程从全局队列中获取G）" class="headerlink" title="GMP内部的负载均衡（被唤醒的线程从全局队列中获取G）"></a>GMP内部的负载均衡（被唤醒的线程从全局队列中获取G）</h3><p>​    <img src="https://cdn.learnku.com/uploads/images/202003/12/58489/0fn8DGqI8N.jpeg!large" alt="场景七"></p>
+<p>​        当P-M组合完成后，G0将会不断的去寻找执行的G，会优先从GQ(Global Queue)中获取批量的G，如果GQ中存在待执行的goroutine，则会采用负载均衡的算法进行计算需要取出的G的数量；</p>
+<p>​        函数：findrunnable()</p>
+<p>​        计算公式：n = min(len(GQ)/GOMAXPROCS + 1, len(GQ)/2)</p>
+<p>​        其中GQ为全局队列中保存的G的数量， GOMAXPROCS为设置的P的最大使用核数，一般默认为当前最大核数，然后计算出二者最小值为从全局队列中获取的数量，将其放入新P-M组合中P的本地队列中，然后由G0进行调度执行；</p>
+<p>​        全局队列中其他的G，向前移动；一般从全局队列中取出的G至少一个；</p>
+</li>
+<li><h3 id="P本地队列和GQ皆为空时，从别地P中偷取G（M2从M1的本地队列中偷取goroutine）"><a href="#P本地队列和GQ皆为空时，从别地P中偷取G（M2从M1的本地队列中偷取goroutine）" class="headerlink" title="P本地队列和GQ皆为空时，从别地P中偷取G（M2从M1的本地队列中偷取goroutine）"></a>P本地队列和GQ皆为空时，从别地P中偷取G（M2从M1的本地队列中偷取goroutine）</h3><p>​    <img src="https://cdn.learnku.com/uploads/images/202003/12/58489/qn1NRMLqnp.png!large" alt="场景八"></p>
+<p>​        当M2中的处理器P2将本地队列中的任务执行完毕后，并且此时全局队列也不存在G；此时M2将会执行work stealing 操作，从其他存在G的processer的本地队列中偷取一半的G，将其放在本地队列中；如上图所示，M2将从P1的尾部偷取一半的G（向下取整），即G8将被偷取存入到P2的本地队列中，然后又M2的G0进行调度执行;</p>
+</li>
+<li><h3 id="进程中没有可运行的G，自旋线程的最大数目-即GOMAXPROCS"><a href="#进程中没有可运行的G，自旋线程的最大数目-即GOMAXPROCS" class="headerlink" title="进程中没有可运行的G，自旋线程的最大数目(即GOMAXPROCS)"></a>进程中没有可运行的G，自旋线程的最大数目(即GOMAXPROCS)</h3><p>​    <img src="https://cdn.learnku.com/uploads/images/202003/12/58489/1DjlseEGTT.png!large" alt="场景九"></p>
+<p>​        当进程中所有的线程M所绑定的P处理器本地队列中没有G，同时全局队列中无待执行的G时，此时进程中将会存在GOMAXPROCS数量个线程处于自旋状态；其他产生的线程将会保存在全局线程队列中处于休眠状态，等待下次被调度唤醒进行任务绑定；</p>
+<p>​        如上图所示：当M1线程执行完G2， M2线程执行完G8，M1-M4都会处于自旋状态，配置GOMAXPROCS的数目为4；所以他们都会处于自旋状态，一直去寻找可以调度的G；自旋的本质其实是一直处于运行状态，只是没有执行G而已，其实也在浪费CPU资源。</p>
+<p>​        不销毁这些自旋的线程的原因：在创建和销毁线程是很耗费CPU资源，也浪费时间；但是当新的goroutine被创建时，可以立刻有M进行执行，这样提高了执行的速率；如果之前销毁了线程，则新的goroutine被创建后，则需要重新创建M，并进行初始化G0等一系列初始化操作，增加了执行了时间，降低了执行的效率；所以这里采用了用空间替换时间，也只保留GOMAXPROCS个自旋线程，降低了过多线程对资源的消耗。</p>
+</li>
+</ul>
+<ul>
+<li><h3 id="Goroutine调度与阻塞"><a href="#Goroutine调度与阻塞" class="headerlink" title="Goroutine调度与阻塞"></a>Goroutine调度与阻塞</h3><p>​    <img src="https://cdn.learnku.com/uploads/images/202003/12/58489/k3HKE9U21M.png!large" alt="场景十"></p>
+<p>​        如上图所示：系统中配置的最大处理器为4，此时M1线程正在执行G2， M2线程正在执行G8，G8协程在运行中产生G9，按局部原则，生成的G9优先加入到M2绑定的P2的本地队列中等待M2的G0进行调度；系统中M3和M4无任务执行，GQ中也无goroutine；此时M3和M4处于自旋状态或者将stealing 别的可用的P中的G；（进程运行中M数量远远大于P数量，M往往需要抢占调度P）</p>
+<p>​        此处我们说的是当G9创建时，G8立马发生了阻塞了系统的调用；此时M2-P2将进行解绑；并且P2会进行一系列的判断：</p>
+<p>​        如果P2本地队列有G，全局队列GQ中有G或者有空闲的M，那么P2将立马唤醒一个M与之绑定，并初始化G0，进行任务的调度；</p>
+<p>​        如果P2没有G，那么P2将会添加到全局的P队列中，等待需要P的M取全局P队列中抢占P；</p>
+<p>​        上图中，P2的本地队列中存在G9，则将会把P2-M2进行解绑，将从全局线程队列中获取M5并进行M5-P2的绑定，然后进行任务的调度；</p>
+</li>
+<li><h3 id="M-P记忆（M会记录曾经绑定的P）"><a href="#M-P记忆（M会记录曾经绑定的P）" class="headerlink" title="M-P记忆（M会记录曾经绑定的P）"></a>M-P记忆（M会记录曾经绑定的P）</h3><p>​        <img src="https://cdn.learnku.com/uploads/images/202003/12/58489/zBvpl8ENSb.png!large" alt="场景十一"></p>
+<p>如上图所示：</p>
+<p>​        M2线程正在执行G8，G8创建了协程G9，此时G8发生了阻塞；</p>
+<p>​        M2-P2将会进行解绑；P2队列存在G9，所以P2将会和os 线程队列中的M进行绑定，但是此时M2将会记录P2；</p>
+<p>​        然后G8和M2将会处于系统调用状态，当G8和M2退出系统调用时，M2将会尝试获取曾经绑定过的P2；        如果获取P2失败，则会从全局P队列中获取空闲的P与之绑定；</p>
+<p>​        G8则会被标记为可运行状态，从而添加到全局的G队列中，等待被其他的P取从全局G队列中获取执行;</p>
+<p>​        M2此时没有P与之绑定，则将处于休眠状态，添加到全局的M队列中，进行睡眠；</p>
+<p>​        如果休眠时间到达一定时间，则将会被GC所消耗与回收；</p>
+</li>
+</ul>
+<p>本文原创作者：刘丹冰aceld<br>参考文章来源: <a href="https://www.bilibili.com/read/cv5098443?share_source=weixin_moments&amp;share_medium=iphone&amp;bbid=Z14D6A1A795E4BA9420AADA64ED420451809&amp;ts=1595636745" target="_blank" rel="noopener">https://www.bilibili.com/read/cv5098443?share_source=weixin_moments&amp;share_medium=iphone&amp;bbid=Z14D6A1A795E4BA9420AADA64ED420451809&amp;ts=1595636745</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/08/18/Golang%E8%B0%83%E5%BA%A6%E5%99%A8GMP%E5%8E%9F%E7%90%86%E4%B8%8E%E8%B0%83%E5%BA%A6%E5%85%A8%E5%88%86%E6%9E%90/" data-id="cke1kqrr200086k017ehxagiv" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-并发常见问题" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/08/13/%E5%B9%B6%E5%8F%91%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/" class="article-date">
+  <time datetime="2020-08-12T16:00:00.000Z" itemprop="datePublished">2020-08-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GO%E8%AF%AD%E8%A8%80%E5%B9%B6%E5%8F%91%E4%B9%8B%E9%81%93/">GO语言并发之道</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/08/13/%E5%B9%B6%E5%8F%91%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/">并发常见问题</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li><h2 id="竞争条件"><a href="#竞争条件" class="headerlink" title="竞争条件"></a>竞争条件</h2><p>百度定义:</p>
+<p>竞争条件指多个线程或者进程在读写一个共享数据时结果依赖于它们执行的相对时间的情形。<br>竞争条件发生在当多个进程或者线程在读写数据时，其最终的的结果依赖于多个进程的指令执行顺序。<br>多个进程并发访问和操作同一数据且执行结果与访问的特定顺序有关，称为竞争条件。</p>
+<p>简单来说:<br>当两个或者多个操作必须按照正确的顺序执行,而程序并没有保证这个顺序,这就出现了竞争条件;通常会出现在一个并发操作读,另一个进行并发写入;</p>
+<p>代码示例:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"fmt"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> number <span class="keyword">int</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		number++</span><br><span class="line">		&#125;()</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">if</span> number == <span class="number">0</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">"number = %v"</span>, number)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果可能性就存在三种情况:</p>
+<p>情况一: 不输出任何东西,因为 if判断在number赋值之后进行执行;<br>情况二: number = 1,if判断在number之前执行,fmt输出在number之后执行;<br>情况三: number = 0,if判断和fmt输出都在number被赋值之前执行;</p>
+<p>解决方案:<br>方案一: 在调试环境中使用,time睡眠,但是不是解决办法的有效方案;<br>方案二: 对变量操作进行原子操作,使用sync中的工具,比如互斥锁 读写锁等等;</p>
+</li>
+<li><h2 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h2><p>定义: </p>
+<p>​        具备在一定的环境下,即运行的上下文中,具有不可分割和不可中断的性质; 在这样的条件下,我们可以认为这个东西是原子的;</p>
+<p>概念:</p>
+<p>上下文(context):</p>
+<p>​        一些操作在一个上下文中是原子的但是在另一个 上下文中就不一定是原子性操作;原子性会根据当前定义的范围的改变而发生改变;</p>
+<p>不可分割和不可中断:</p>
+<p>​        就是说在定义的上下文中,原子的东西将会被完整的运行,并且在这种情况下不会同时发生任何事情,也就是在原子内部是同步进行;</p>
+<p>原子举例说明:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> number <span class="keyword">int</span></span><br><span class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;number++&#125;()</span><br><span class="line"></span><br><span class="line">number ++ </span><br><span class="line"></span><br><span class="line">可以拆分:</span><br><span class="line"><span class="number">1.</span> 检索 number 值</span><br><span class="line"><span class="number">2.</span> 对 number 增加</span><br><span class="line"><span class="number">3.</span> 存储 number 值</span><br><span class="line">其中<span class="number">3</span>步都是原子操作,但是将其合在一起就不一定是原子操作,是否具备原子性,要看该操作所在的上下文环境中.</span><br><span class="line"></span><br><span class="line">如果该操作的上下文是: 无并发进程程序 则 number++ 是原子性</span><br><span class="line">如果该操作的上下文是: goroutine,并且number并没有给其他的goroutine中使用,则 也是原子性;</span><br></pre></td></tr></table></figure>
+
+<p>综上所述:</p>
+<p>​        在考虑原子性时,优先要确定的是就是定义上下文或者范围,然后再考虑这些操作是不是原子性,一切都应该遵守该原则; 大部分的操作都不是原子性,比如函数, 方法以及程序等.</p>
+</li>
+<li><h2 id="内存访问同步"><a href="#内存访问同步" class="headerlink" title="内存访问同步"></a>内存访问同步</h2><p>​        对同一个变量的访问或修改,在访问内存之前,进行获取锁操作,对变量进行业务处理完毕后,对该内存所持有的锁进行释放,以便于其他线程进行资源的访问与修改.</p>
+<p>​        使用sync中的互斥锁或读写锁,可以实现了对该内存访问同步执行,保证数据安全性;弊端就是对程序的性能产生很大的影响, 并带来一系列锁的问题(死锁), 锁定的临界区域大小确定, 以及临界区是否会频繁的进入与退出等问题;</p>
+<p>​                </p>
+</li>
+<li><h2 id="死锁-活锁-饥饿"><a href="#死锁-活锁-饥饿" class="headerlink" title="死锁 活锁 饥饿"></a>死锁 活锁 饥饿</h2></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/08/13/%E5%B9%B6%E5%8F%91%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/" data-id="cke1kqrqy00036k0105ta25qe" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-golang反射reflect的使用" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/07/04/golang%E5%8F%8D%E5%B0%84reflect%E7%9A%84%E4%BD%BF%E7%94%A8/" class="article-date">
+  <time datetime="2020-07-03T16:00:00.000Z" itemprop="datePublished">2020-07-04</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Golang/">Golang</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/07/04/golang%E5%8F%8D%E5%B0%84reflect%E7%9A%84%E4%BD%BF%E7%94%A8/">Golang中反射reflect的使用</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Golang中的反射的使用"><a href="#Golang中的反射的使用" class="headerlink" title="Golang中的反射的使用"></a>Golang中的反射的使用</h2><ul>
+<li><h2 id="反射的含义"><a href="#反射的含义" class="headerlink" title="反射的含义"></a>反射的含义</h2><p>​        反射能够在程序运行过程中探知对象的类型以及对象的值，还可以获取内存结构。弥补了静态语言在动态行为的不足。反射实现了元编程的重要手段。</p>
+<p>​        简单的说反射机制就是在运行时动态的调用对象的方法和属性，golang中使用reflect包可以实现反射。</p>
+</li>
+<li><h2 id="反射的基础"><a href="#反射的基础" class="headerlink" title="反射的基础"></a>反射的基础</h2><ol>
+<li><h4 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h4><p>变量包括变量的类型和变量的值</p>
+<p>(type, value)</p>
+<p>其中类型包括静态类型、内置类型。静态类型就是常见的几种类型 int bool float 等。内置类型就是runtime系统所能识别的类型。</p>
+</li>
+<li><h4 id="接口变量"><a href="#接口变量" class="headerlink" title="接口变量"></a>接口变量</h4><p>Golang的指定类型的变量的类型是静态的（也就是指定int、string这些的变量，它的type是static type），在创建变量的时候就已经确定，反射主要与Golang的interface类型相关（它的type是concrete type），只有interface类型才有反射一说。</p>
+<p>每一个接口变量都维护一个pair对，其pair对是：(type, value)</p>
+<p>value是实际变量值，type是实际变量的类型。一个interface{}类型的变量包含了2个指针，一个指针指向值的类型【对应concrete type】，另外一个指针指向实际的值【对应value】。</p>
+<p>pair对在接口变量的连续赋值过程中是不变的。</p>
+<p>interface及其pair的存在，是Golang中实现反射的前提。</p>
+</li>
+</ol>
+<p>​        总而言之, 反射操作所需要的基本信息都是来自于接口变量。接口变量除了存储自身类型外，还会保存实际对象的类型数据。</p>
+</li>
+<li><h2 id="类型反射"><a href="#类型反射" class="headerlink" title="类型反射"></a>类型反射</h2><p>类型反射的入口函数:</p>
+<p>func TypeOf(i interface{}) Type</p>
+<p>该函数会将任何传入的对象转化为接口类型。</p>
+<p>未完待续</p>
+</li>
+<li><h2 id="值反射"><a href="#值反射" class="headerlink" title="值反射"></a>值反射</h2><p>值反射的入口函数:</p>
+<p>func ValueOf(i interface{}) Type</p>
+<p>未完待续</p>
+</li>
+<li><h2 id="反射方法的调用"><a href="#反射方法的调用" class="headerlink" title="反射方法的调用"></a>反射方法的调用</h2><p>通过reflect.Value 来获取，也需要配合 Elem()</p>
+<p>未完待续</p>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/07/04/golang%E5%8F%8D%E5%B0%84reflect%E7%9A%84%E4%BD%BF%E7%94%A8/" data-id="cke1kqrpl00006k01dbcz9ce0" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-将有序数组放入到二叉树中" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/07/04/%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E6%94%BE%E5%85%A5%E5%88%B0%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%AD/" class="article-date">
+  <time datetime="2020-07-03T16:00:00.000Z" itemprop="datePublished">2020-07-04</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/07/04/%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E6%94%BE%E5%85%A5%E5%88%B0%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%AD/">树-1-有序数组放入到二叉树中</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="将一个有序数组的元素放入到二叉树中"><a href="#将一个有序数组的元素放入到二叉树中" class="headerlink" title="将一个有序数组的元素放入到二叉树中"></a>将一个有序数组的元素放入到二叉树中</h2><ul>
+<li><p>题目</p>
+<p>​        将一个有序数组的元素放入到二叉树中，形成的二叉树为二叉搜索树。</p>
+</li>
+<li><p>实现思路:</p>
+<p>​        1.获取数组的中间元素位置，构建根节点。</p>
+<p>​        2.在将数组开始到中间元素前一个位置构造为节点的左子树。中间元素后一个到数组末尾元素构造为节点的右子树。</p>
+<p>​        3.如果数组的开始位置等于结束位置，则返回。</p>
+<p>​        4.递归调用进行构造。</p>
+</li>
+<li><p>图示说明</p>
+<p>​        <img src="../../post_img/image-20200704143234773.png" alt="数组构造树"></p>
+</li>
+<li><p>实现代码    </p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个节点的结构体</span></span><br><span class="line"><span class="keyword">type</span> TreeNode <span class="keyword">struct</span> &#123;</span><br><span class="line">  <span class="comment">// 值域</span></span><br><span class="line">  Value <span class="keyword">interface</span>&#123;&#125;</span><br><span class="line">  <span class="comment">// 左子节点</span></span><br><span class="line">  LiftNode *TreeNode</span><br><span class="line">  <span class="comment">// 右子节点</span></span><br><span class="line">  RightNode *TreeNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 构造函数，返回指针类型的一个节点</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Constructor</span><span class="params">()</span> *<span class="title">TreeNode</span></span> &#123;</span><br><span class="line">	c := <span class="built_in">new</span>(TreeNode)</span><br><span class="line">	<span class="keyword">return</span> c</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 将数组转化为树的函数</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ArrayConvertTree</span><span class="params">(arr []<span class="keyword">int</span>, start, end <span class="keyword">int</span>)</span> *<span class="title">TreeNode</span></span> &#123;</span><br><span class="line">	<span class="comment">// 定义一个跟节点</span></span><br><span class="line">	<span class="keyword">var</span> root *TreeNode</span><br><span class="line">	<span class="comment">// 只要结束节点大于等于开始节点</span></span><br><span class="line">	<span class="keyword">if</span> end &gt;= start &#123;</span><br><span class="line">		<span class="comment">// 构造一个根节点</span></span><br><span class="line">		root = Constructor()</span><br><span class="line">		<span class="comment">// 取出中间位置</span></span><br><span class="line">		mid := (start+end+<span class="number">1</span>)/<span class="number">2</span></span><br><span class="line">		<span class="comment">// 如果开始等于结束,该节点的左右节点都为nil</span></span><br><span class="line">		root.Value = arr[mid]</span><br><span class="line">		<span class="comment">// 该节点的左子节点</span></span><br><span class="line">		root.LiftNode = ArrayConvertTree(arr, start, mid<span class="number">-1</span>)</span><br><span class="line">		<span class="comment">// 该节点的右子节点</span></span><br><span class="line">		root.RightNode = ArrayConvertTree(arr, mid+<span class="number">1</span>, end)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> root</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 树中序的遍历</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TreeMid</span><span class="params">(t *TreeNode)</span></span> &#123;</span><br><span class="line">	<span class="comment">// 如果节点为空</span></span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	TreeMid(t.LiftNode)</span><br><span class="line">	fmt.Println(t.Value)</span><br><span class="line">	TreeMid(t.RightNode)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	arr := []<span class="keyword">int</span>&#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>&#125;</span><br><span class="line">	fmt.Println(arr)</span><br><span class="line">	r := ArrayConvertTree(arr,<span class="number">0</span>, <span class="built_in">len</span>(arr)<span class="number">-1</span>)</span><br><span class="line">	<span class="comment">//fmt.Printf("%#v", r.Value, r.LiftNode.Value, r.RightNode.Value)</span></span><br><span class="line">	TreeMid(r)</span><br><span class="line">&#125;</span><br><span class="line">输出如下:</span><br><span class="line">输入的数组：</span><br><span class="line">[<span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span> <span class="number">6</span> <span class="number">7</span> <span class="number">8</span> <span class="number">9</span>]</span><br><span class="line">中序遍历的输出</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="number">3</span></span><br><span class="line"><span class="number">4</span></span><br><span class="line"><span class="number">5</span></span><br><span class="line"><span class="number">6</span></span><br><span class="line"><span class="number">7</span></span><br><span class="line"><span class="number">8</span></span><br><span class="line"><span class="number">9</span></span><br><span class="line">一致</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/07/04/%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E6%94%BE%E5%85%A5%E5%88%B0%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%AD/" data-id="cke1kqrqu00016k010gz30xqt" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-递归实现栈逆序" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2020/07/01/%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0%E6%A0%88%E9%80%86%E5%BA%8F/" class="article-date">
@@ -104,7 +591,7 @@
 </li>
 <li><p>图示说明</p>
 <p>​        1. 返回栈底元素，并将其移出掉</p>
-<p>​        <img src="../../post_img/image-20200701211709576.png" alt="返回栈底元素并移除">        </p>
+<p>​        <img src="../../post_img/QQ20200709-191956@2x.png" alt="返回栈底元素并移除">        </p>
 <p>​        2. 递归获取栈底元素，直到栈为空，在将获取到的元素押入到栈中。</p>
 <p>​        <img src="../../post_img/image-20200701212925719.png" alt="栈元素逆序"></p>
 </li>
@@ -346,7 +833,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/GO%E8%AF%AD%E8%A8%80%E5%B9%B6%E5%8F%91%E4%B9%8B%E9%81%93/">GO语言并发之道</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Golang/">Golang</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li></ul>
     </div>
   </div>
 
@@ -361,7 +848,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li></ul>
     </div>
   </div>
 
@@ -374,19 +861,23 @@
       <ul>
         
           <li>
+            <a href="/2020/08/18/Golang%E8%B0%83%E5%BA%A6%E5%99%A8GMP%E5%8E%9F%E7%90%86%E4%B8%8E%E8%B0%83%E5%BA%A6%E5%85%A8%E5%88%86%E6%9E%90/">Golang调度器GMP原理与调度全分析</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/13/%E5%B9%B6%E5%8F%91%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/">并发常见问题</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/04/golang%E5%8F%8D%E5%B0%84reflect%E7%9A%84%E4%BD%BF%E7%94%A8/">Golang中反射reflect的使用</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/04/%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E6%94%BE%E5%85%A5%E5%88%B0%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%AD/">树-1-有序数组放入到二叉树中</a>
+          </li>
+        
+          <li>
             <a href="/2020/07/01/%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0%E6%A0%88%E9%80%86%E5%BA%8F/">栈与队列-3-递归实现栈的逆序</a>
-          </li>
-        
-          <li>
-            <a href="/2020/06/30/%E5%8F%8C%E6%A0%88%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E9%98%9F%E5%88%97/">栈与队列-2-由两个栈组成的队列</a>
-          </li>
-        
-          <li>
-            <a href="/2020/06/29/%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E6%9C%89getMin%E5%8A%9F%E8%83%BD%E7%9A%84%E6%A0%88/">栈与队列-1-设计一个有getMin功能的栈</a>
-          </li>
-        
-          <li>
-            <a href="/2020/06/17/postgres%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/">postgresql数据库安装</a>
           </li>
         
       </ul>

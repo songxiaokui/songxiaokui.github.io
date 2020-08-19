@@ -5,13 +5,17 @@
   
 
   
-  <title>Archives: 2020/7 | 宋晓奎的学习生涯</title>
+  <title>Golang中反射reflect的使用 | 宋晓奎的学习生涯</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="宋晓奎的学习生涯">
-<meta property="og:url" content="http://yoursite.com/archives/2020/07/index.html">
+  <meta name="description" content="Golang中的反射的使用 反射的含义​        反射能够在程序运行过程中探知对象的类型以及对象的值，还可以获取内存结构。弥补了静态语言在动态行为的不足。反射实现了元编程的重要手段。 ​        简单的说反射机制就是在运行时动态的调用对象的方法和属性，golang中使用reflect包可以实现反射。  反射的基础 变量变量包括变量的类型和变量的值 (type, value) 其中类型包">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Golang中反射reflect的使用">
+<meta property="og:url" content="http://yoursite.com/2020/07/04/golang%E5%8F%8D%E5%B0%84reflect%E7%9A%84%E4%BD%BF%E7%94%A8/index.html">
 <meta property="og:site_name" content="宋晓奎的学习生涯">
+<meta property="og:description" content="Golang中的反射的使用 反射的含义​        反射能够在程序运行过程中探知对象的类型以及对象的值，还可以获取内存结构。弥补了静态语言在动态行为的不足。反射实现了元编程的重要手段。 ​        简单的说反射机制就是在运行时动态的调用对象的方法和属性，golang中使用reflect包可以实现反射。  反射的基础 变量变量包括变量的类型和变量的值 (type, value) 其中类型包">
 <meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2020-07-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-08-14T07:57:56.447Z">
 <meta property="article:author" content="宋晓奎">
 <meta name="twitter:card" content="summary">
   
@@ -66,78 +70,95 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2020/07/04/golang%E5%8F%8D%E5%B0%84reflect%E7%9A%84%E4%BD%BF%E7%94%A8/" class="archive-article-date">
-  <time datetime="2020-07-03T16:00:00.000Z" itemprop="datePublished">Jul 4</time>
+        <section id="main"><article id="post-golang反射reflect的使用" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/07/04/golang%E5%8F%8D%E5%B0%84reflect%E7%9A%84%E4%BD%BF%E7%94%A8/" class="article-date">
+  <time datetime="2020-07-03T16:00:00.000Z" itemprop="datePublished">2020-07-04</time>
 </a>
-      
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Golang/">Golang</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/04/golang%E5%8F%8D%E5%B0%84reflect%E7%9A%84%E4%BD%BF%E7%94%A8/">Golang中反射reflect的使用</a>
+    <h1 class="article-title" itemprop="name">
+      Golang中反射reflect的使用
     </h1>
   
 
-    </header>
-  </div>
-</article>
-  
+      </header>
     
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2020/07/04/%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E6%94%BE%E5%85%A5%E5%88%B0%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%AD/" class="archive-article-date">
-  <time datetime="2020-07-03T16:00:00.000Z" itemprop="datePublished">Jul 4</time>
-</a>
+    <div class="article-entry" itemprop="articleBody">
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/04/%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E6%94%BE%E5%85%A5%E5%88%B0%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%AD/">树-1-有序数组放入到二叉树中</a>
-    </h1>
-  
+        <h2 id="Golang中的反射的使用"><a href="#Golang中的反射的使用" class="headerlink" title="Golang中的反射的使用"></a>Golang中的反射的使用</h2><ul>
+<li><h2 id="反射的含义"><a href="#反射的含义" class="headerlink" title="反射的含义"></a>反射的含义</h2><p>​        反射能够在程序运行过程中探知对象的类型以及对象的值，还可以获取内存结构。弥补了静态语言在动态行为的不足。反射实现了元编程的重要手段。</p>
+<p>​        简单的说反射机制就是在运行时动态的调用对象的方法和属性，golang中使用reflect包可以实现反射。</p>
+</li>
+<li><h2 id="反射的基础"><a href="#反射的基础" class="headerlink" title="反射的基础"></a>反射的基础</h2><ol>
+<li><h4 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h4><p>变量包括变量的类型和变量的值</p>
+<p>(type, value)</p>
+<p>其中类型包括静态类型、内置类型。静态类型就是常见的几种类型 int bool float 等。内置类型就是runtime系统所能识别的类型。</p>
+</li>
+<li><h4 id="接口变量"><a href="#接口变量" class="headerlink" title="接口变量"></a>接口变量</h4><p>Golang的指定类型的变量的类型是静态的（也就是指定int、string这些的变量，它的type是static type），在创建变量的时候就已经确定，反射主要与Golang的interface类型相关（它的type是concrete type），只有interface类型才有反射一说。</p>
+<p>每一个接口变量都维护一个pair对，其pair对是：(type, value)</p>
+<p>value是实际变量值，type是实际变量的类型。一个interface{}类型的变量包含了2个指针，一个指针指向值的类型【对应concrete type】，另外一个指针指向实际的值【对应value】。</p>
+<p>pair对在接口变量的连续赋值过程中是不变的。</p>
+<p>interface及其pair的存在，是Golang中实现反射的前提。</p>
+</li>
+</ol>
+<p>​        总而言之, 反射操作所需要的基本信息都是来自于接口变量。接口变量除了存储自身类型外，还会保存实际对象的类型数据。</p>
+</li>
+<li><h2 id="类型反射"><a href="#类型反射" class="headerlink" title="类型反射"></a>类型反射</h2><p>类型反射的入口函数:</p>
+<p>func TypeOf(i interface{}) Type</p>
+<p>该函数会将任何传入的对象转化为接口类型。</p>
+<p>未完待续</p>
+</li>
+<li><h2 id="值反射"><a href="#值反射" class="headerlink" title="值反射"></a>值反射</h2><p>值反射的入口函数:</p>
+<p>func ValueOf(i interface{}) Type</p>
+<p>未完待续</p>
+</li>
+<li><h2 id="反射方法的调用"><a href="#反射方法的调用" class="headerlink" title="反射方法的调用"></a>反射方法的调用</h2><p>通过reflect.Value 来获取，也需要配合 Elem()</p>
+<p>未完待续</p>
+</li>
+</ul>
 
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2020/07/01/%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0%E6%A0%88%E9%80%86%E5%BA%8F/" class="archive-article-date">
-  <time datetime="2020-06-30T16:00:00.000Z" itemprop="datePublished">Jul 1</time>
-</a>
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/01/%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0%E6%A0%88%E9%80%86%E5%BA%8F/">栈与队列-3-递归实现栈的逆序</a>
-    </h1>
-  
-
-    </header>
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/07/04/golang%E5%8F%8D%E5%B0%84reflect%E7%9A%84%E4%BD%BF%E7%94%A8/" data-id="cke1kqrpl00006k01dbcz9ce0" class="article-share-link">Share</a>
+      
+      
+    </footer>
   </div>
-</article>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/08/13/%E5%B9%B6%E5%8F%91%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          并发常见问题
+        
+      </div>
+    </a>
   
   
-    </div></section>
+    <a href="/2020/07/04/%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E6%94%BE%E5%85%A5%E5%88%B0%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%AD/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">树-1-有序数组放入到二叉树中</div>
+    </a>
   
+</nav>
 
+  
+</article>
 
 </section>
         

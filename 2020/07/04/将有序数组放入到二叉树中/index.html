@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>树-1-有序数组放入到二叉树中 | 宋晓奎的学习生涯</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="将一个有序数组的元素放入到二叉树中 题目 ​        将一个有序数组的元素放入到二叉树中，形成的二叉树为二叉搜索树。  实现思路: ​        1.获取数组的中间元素位置，构建根节点。 ​        2.在将数组开始到中间元素前一个位置构造为节点的左子树。中间元素后一个到数组末尾元素构造为节点的右子树。 ​        3.如果数组的开始位置等于结束位置，则返回。 ​">
+<meta property="og:type" content="article">
+<meta property="og:title" content="树-1-有序数组放入到二叉树中">
+<meta property="og:url" content="http://yoursite.com/2020/07/04/%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E6%94%BE%E5%85%A5%E5%88%B0%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%AD/index.html">
+<meta property="og:site_name" content="宋晓奎的学习生涯">
+<meta property="og:description" content="将一个有序数组的元素放入到二叉树中 题目 ​        将一个有序数组的元素放入到二叉树中，形成的二叉树为二叉搜索树。  实现思路: ​        1.获取数组的中间元素位置，构建根节点。 ​        2.在将数组开始到中间元素前一个位置构造为节点的左子树。中间元素后一个到数组末尾元素构造为节点的右子树。 ​        3.如果数组的开始位置等于结束位置，则返回。 ​">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="http://yoursite.com/2020/07/post_img/image-20200704143234773.png">
+<meta property="article:published_time" content="2020-07-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-07-04T06:51:57.536Z">
+<meta property="article:author" content="宋晓奎">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/07/post_img/image-20200704143234773.png">
+  
+    <link rel="alternate" href="/atom.xml" title="宋晓奎的学习生涯" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/img/favicon.ico">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">宋晓奎的学习生涯</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">优秀的积累，造就优秀的复制</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-将有序数组放入到二叉树中" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/07/04/%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E6%94%BE%E5%85%A5%E5%88%B0%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%AD/" class="article-date">
+  <time datetime="2020-07-03T16:00:00.000Z" itemprop="datePublished">2020-07-04</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      树-1-有序数组放入到二叉树中
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="将一个有序数组的元素放入到二叉树中"><a href="#将一个有序数组的元素放入到二叉树中" class="headerlink" title="将一个有序数组的元素放入到二叉树中"></a>将一个有序数组的元素放入到二叉树中</h2><ul>
+<li><p>题目</p>
+<p>​        将一个有序数组的元素放入到二叉树中，形成的二叉树为二叉搜索树。</p>
+</li>
+<li><p>实现思路:</p>
+<p>​        1.获取数组的中间元素位置，构建根节点。</p>
+<p>​        2.在将数组开始到中间元素前一个位置构造为节点的左子树。中间元素后一个到数组末尾元素构造为节点的右子树。</p>
+<p>​        3.如果数组的开始位置等于结束位置，则返回。</p>
+<p>​        4.递归调用进行构造。</p>
+</li>
+<li><p>图示说明</p>
+<p>​        <img src="../../post_img/image-20200704143234773.png" alt="数组构造树"></p>
+</li>
+<li><p>实现代码    </p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个节点的结构体</span></span><br><span class="line"><span class="keyword">type</span> TreeNode <span class="keyword">struct</span> &#123;</span><br><span class="line">  <span class="comment">// 值域</span></span><br><span class="line">  Value <span class="keyword">interface</span>&#123;&#125;</span><br><span class="line">  <span class="comment">// 左子节点</span></span><br><span class="line">  LiftNode *TreeNode</span><br><span class="line">  <span class="comment">// 右子节点</span></span><br><span class="line">  RightNode *TreeNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 构造函数，返回指针类型的一个节点</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Constructor</span><span class="params">()</span> *<span class="title">TreeNode</span></span> &#123;</span><br><span class="line">	c := <span class="built_in">new</span>(TreeNode)</span><br><span class="line">	<span class="keyword">return</span> c</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 将数组转化为树的函数</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ArrayConvertTree</span><span class="params">(arr []<span class="keyword">int</span>, start, end <span class="keyword">int</span>)</span> *<span class="title">TreeNode</span></span> &#123;</span><br><span class="line">	<span class="comment">// 定义一个跟节点</span></span><br><span class="line">	<span class="keyword">var</span> root *TreeNode</span><br><span class="line">	<span class="comment">// 只要结束节点大于等于开始节点</span></span><br><span class="line">	<span class="keyword">if</span> end &gt;= start &#123;</span><br><span class="line">		<span class="comment">// 构造一个根节点</span></span><br><span class="line">		root = Constructor()</span><br><span class="line">		<span class="comment">// 取出中间位置</span></span><br><span class="line">		mid := (start+end+<span class="number">1</span>)/<span class="number">2</span></span><br><span class="line">		<span class="comment">// 如果开始等于结束,该节点的左右节点都为nil</span></span><br><span class="line">		root.Value = arr[mid]</span><br><span class="line">		<span class="comment">// 该节点的左子节点</span></span><br><span class="line">		root.LiftNode = ArrayConvertTree(arr, start, mid<span class="number">-1</span>)</span><br><span class="line">		<span class="comment">// 该节点的右子节点</span></span><br><span class="line">		root.RightNode = ArrayConvertTree(arr, mid+<span class="number">1</span>, end)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> root</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 树中序的遍历</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TreeMid</span><span class="params">(t *TreeNode)</span></span> &#123;</span><br><span class="line">	<span class="comment">// 如果节点为空</span></span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	TreeMid(t.LiftNode)</span><br><span class="line">	fmt.Println(t.Value)</span><br><span class="line">	TreeMid(t.RightNode)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	arr := []<span class="keyword">int</span>&#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>&#125;</span><br><span class="line">	fmt.Println(arr)</span><br><span class="line">	r := ArrayConvertTree(arr,<span class="number">0</span>, <span class="built_in">len</span>(arr)<span class="number">-1</span>)</span><br><span class="line">	<span class="comment">//fmt.Printf("%#v", r.Value, r.LiftNode.Value, r.RightNode.Value)</span></span><br><span class="line">	TreeMid(r)</span><br><span class="line">&#125;</span><br><span class="line">输出如下:</span><br><span class="line">输入的数组：</span><br><span class="line">[<span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span> <span class="number">6</span> <span class="number">7</span> <span class="number">8</span> <span class="number">9</span>]</span><br><span class="line">中序遍历的输出</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="number">3</span></span><br><span class="line"><span class="number">4</span></span><br><span class="line"><span class="number">5</span></span><br><span class="line"><span class="number">6</span></span><br><span class="line"><span class="number">7</span></span><br><span class="line"><span class="number">8</span></span><br><span class="line"><span class="number">9</span></span><br><span class="line">一致</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/07/04/%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E6%94%BE%E5%85%A5%E5%88%B0%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%AD/" data-id="cke1kqrqu00016k010gz30xqt" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/07/04/golang%E5%8F%8D%E5%B0%84reflect%E7%9A%84%E4%BD%BF%E7%94%A8/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Golang中反射reflect的使用
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/07/01/%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0%E6%A0%88%E9%80%86%E5%BA%8F/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">栈与队列-3-递归实现栈的逆序</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/GO%E8%AF%AD%E8%A8%80%E5%B9%B6%E5%8F%91%E4%B9%8B%E9%81%93/">GO语言并发之道</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Golang/">Golang</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/08/18/Golang%E8%B0%83%E5%BA%A6%E5%99%A8GMP%E5%8E%9F%E7%90%86%E4%B8%8E%E8%B0%83%E5%BA%A6%E5%85%A8%E5%88%86%E6%9E%90/">Golang调度器GMP原理与调度全分析</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/13/%E5%B9%B6%E5%8F%91%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/">并发常见问题</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/04/golang%E5%8F%8D%E5%B0%84reflect%E7%9A%84%E4%BD%BF%E7%94%A8/">Golang中反射reflect的使用</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/04/%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E6%94%BE%E5%85%A5%E5%88%B0%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%AD/">树-1-有序数组放入到二叉树中</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0%E6%A0%88%E9%80%86%E5%BA%8F/">栈与队列-3-递归实现栈的逆序</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 宋晓奎<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	<br>
+	 <div style="width:200px; margin:0 auto; padding:2px 0;">
+	 <a href="http://www.beian.miit.gov.cn/"  style="color:#f72b07" target="_blank">浙ICP备20022863号</a>
+
+	</div>
+	<div style="width:300px;margin:0 auto; padding:2px 0;">
+	<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33010402004239" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;text-align: center">
+          <img src="/img/back.png" style="float:left;"/>
+          	<p style="float:left;height:20px;line-height:20px;margin: 0px 0px 0px 5px; color:#939393;">浙公网安备 33010402004239号
+            </p>
+					</a>
+</div>	 
+    </div>
+	 <div style="width:400px;margin:0 auto; padding:2px 0;">	
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div calss="count-span">
+	<span id="busuanzi_container_site_pv">
+		本站总访问量<span id="busuanzi_value_site_pv"></span>次
+	</span>
+	<span id="busuanzi_container_site_uv">
+		本站总访客数<span id="busuanzi_value_site_uv"></span>人
+	</span>
+	<span id="busuanzi_container_page_pv">
+		本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+	</div>
+	
+	
+<!--《添加网站运行时间 -->
+<!--<br/>-->
+<div style="width:350px;margin:0 auto; padding:2px 0;">
+<span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+</div>
+<script>
+    var now = new Date();
+
+    function createtime() {
+        var grt = new Date("06/29/2020 12:00:00"); //此处修改你的建站时间或者网站上线时间 
+        now.setTime(now.getTime() + 250);
+        days = (now - grt) / 1000 / 60 / 60 / 24;
+        dnum = Math.floor(days);
+        hours = (now - grt) / 1000 / 60 / 60 - (24 * dnum);
+        hnum = Math.floor(hours);
+        if (String(hnum).length == 1) {
+            hnum = "0" + hnum;
+        }
+        minutes = (now - grt) / 1000 / 60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes);
+        if (String(mnum).length == 1) {
+            mnum = "0" + mnum;
+        }
+        seconds = (now - grt) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds);
+        if (String(snum).length == 1) {
+            snum = "0" + snum;
+        }
+        document.getElementById("timeDate").innerHTML = "   " +  " 本站已安全运行 " + dnum + " 天 ";
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+    }
+    setInterval("createtime()", 300);
+</script>
+<!-- 添加网站运行时间》 -->	
+
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
